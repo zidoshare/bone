@@ -1,8 +1,6 @@
 package site.zido.core;
 
-import site.zido.utils.PropertiesUtils;
-import sun.misc.Launcher;
-
+import site.zido.utils.commons.PropertiesUtils;
 import static site.zido.constants.ConfigConstants.*;
 
 /**
@@ -31,7 +29,7 @@ public class ZiConfig {
    * 初始化实例
    * <p>本方法只能调用一次</p>
    *
-   * @return
+   * @return 配置类
    */
   static ZiConfig newInstance() {
     if (ZiConfig.isFirst)
@@ -53,9 +51,14 @@ public class ZiConfig {
     String mainClassName = PropertiesUtils.value(MAIN_CLASS_NAME);
     if (mainClassName != null) {
       try {
-        Class<?> classzz = Launcher.getLauncher().getClassLoader().loadClass(mainClassName);
+        Class<?> classzz = Class.forName(mainClassName);
+        Object o = classzz.newInstance();
       } catch (ClassNotFoundException e) {
-
+        e.printStackTrace();
+      } catch (IllegalAccessException e) {
+        e.printStackTrace();
+      } catch (InstantiationException e) {
+        e.printStackTrace();
       }
     }
     return config;

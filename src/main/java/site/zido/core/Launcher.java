@@ -11,5 +11,6 @@ package site.zido.core;
 public class Launcher {
   public static void start(){
     ZiConfig config = ZiConfig.newInstance();
+
   }
 }
