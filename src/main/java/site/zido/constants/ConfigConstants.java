@@ -1,7 +1,7 @@
 package site.zido.constants;
 
 /**
- * Created by zido on 17-7-12.
+ * 常量类.
  * <p>
  * Date:17-7-12 下午3:31
  *

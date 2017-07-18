@@ -1,6 +1,9 @@
 package site.zido.core;
 
 import site.zido.utils.commons.PropertiesUtils;
+
+import javax.servlet.ServletContext;
+
 import static site.zido.constants.ConfigConstants.*;
 
 /**
@@ -23,7 +26,8 @@ public class ZiConfig {
   private String jdbcUrl;
   private String username;
   private String password;
-
+  //环境配置
+  private Environment environment;
 
   /**
    * 初始化实例
@@ -31,7 +35,7 @@ public class ZiConfig {
    *
    * @return 配置类
    */
-  static ZiConfig newInstance() {
+  static ZiConfig newInstance(ServletContext context) {
     if (ZiConfig.isFirst)
       throw new RuntimeException("初始化实例只能获取一次,如需获得实例可调用getInstance方法");
     PropertiesUtils.use("application.properties");

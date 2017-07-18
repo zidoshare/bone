@@ -9,7 +9,5 @@ package site.zido;
  * @version 1.0.0
  */
 public class Loader extends ClassLoader {
-  public Loader(String mainClassName) {
 
-  }
 }
