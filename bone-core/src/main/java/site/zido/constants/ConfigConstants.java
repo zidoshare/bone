@@ -5,7 +5,7 @@ package site.zido.constants;
  * <p>
  * Date:17-7-12 下午3:31
  *
- * @author <a href="zido.site">site.zido</a>
+ * @author <a href="site.zido.site">site.site.zido</a>
  * @version 1.0.0
  */
 public class ConfigConstants {

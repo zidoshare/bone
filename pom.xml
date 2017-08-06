@@ -4,10 +4,31 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>site.zido</groupId>
-  <artifactId>bone</artifactId>
+  <groupId>site.zido.bone</groupId>
+  <artifactId>bone-builder</artifactId>
+  <packaging>pom</packaging>
   <version>0.0.1</version>
-
+  <modules>
+    <module>bone-core</module>
+    <module>bone-jdbc</module>
+    <module>zido-utils</module>
+  </modules>
+  <properties>
+    <java.version>1.8</java.version>
+    <!-- 文件拷贝时的编码 -->
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <!-- 编译时的编码 -->
+    <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
+    <spring.boot.version>1.5.3.RELEASE</spring.boot.version>
+    <mybatisplus.starter.version>1.0.1</mybatisplus.starter.version>
+    <mysql.driver.version>5.1.40</mysql.driver.version>
+    <druid.version>1.0.31</druid.version>
+    <fastjson.version>1.2.32</fastjson.version>
+    <swagger2.version>2.6.1</swagger2.version>
+    <brush.version>0.0.2</brush.version>
+    <mybatisplus.version>2.0.8</mybatisplus.version>
+  </properties>
   <dependencies>
     <dependency>
       <groupId>javax.servlet</groupId>
@@ -21,9 +42,46 @@
       <version>0.0.2</version>
     </dependency>
     <dependency>
+      <groupId>c3p0</groupId>
+      <artifactId>c3p0</artifactId>
+      <version>0.9.1.2</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>site.zido.bone</groupId>
+      <artifactId>bone-core</artifactId>
+      <version>0.0.1</version>
+    </dependency>
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.12</version>
     </dependency>
   </dependencies>
+  <!--使用阿里云中心仓库-->
+  <repositories>
+    <repository>
+      <id>central</id>
+      <name>Central Repository</name>
+      <url>http://maven.aliyun.com/nexus/content/repositories/central</url>
+      <layout>default</layout>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+  <build>
+    <!-- 配置java版本-->
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <configuration>
+            <source>${java.version}</source>
+            <target>${java.version}</target>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
 </project>

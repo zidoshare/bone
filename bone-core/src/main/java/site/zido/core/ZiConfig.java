@@ -1,17 +1,16 @@
 package site.zido.core;
 
 import site.zido.utils.commons.PropertiesUtils;
+import site.zido.constants.ConfigConstants;
 
 import javax.servlet.ServletContext;
-
-import static site.zido.constants.ConfigConstants.*;
 
 /**
  * 核心配置类
  * <p>
  * Date:17-7-12 上午11:06
  *
- * @author <a href="site.zido.site">site.zido</a>
+ * @author <a href="site.site.zido.site">site.site.zido</a>
  * @version 1.0.0
  */
 public class ZiConfig {
@@ -40,10 +39,10 @@ public class ZiConfig {
       throw new RuntimeException("初始化实例只能获取一次,如需获得实例可调用getInstance方法");
     PropertiesUtils.use("application.properties");
     //获取配置文件中的初始化变量
-    Boolean mode = PropertiesUtils.valueToBool(MODE, true);
-    String jdbcUrl = PropertiesUtils.value(JDBC_URL);
-    String username = PropertiesUtils.value(USERNAME);
-    String password = PropertiesUtils.value(PASSWORD);
+    Boolean mode = PropertiesUtils.valueToBool(ConfigConstants.MODE, true);
+    String jdbcUrl = PropertiesUtils.value(ConfigConstants.JDBC_URL);
+    String username = PropertiesUtils.value(ConfigConstants.USERNAME);
+    String password = PropertiesUtils.value(ConfigConstants.PASSWORD);
 
     //设置初始化变量
     config.setMode(mode)
@@ -52,7 +51,7 @@ public class ZiConfig {
             .setPassword(password);
 
 
-    String mainClassName = PropertiesUtils.value(MAIN_CLASS_NAME);
+    String mainClassName = PropertiesUtils.value(ConfigConstants.MAIN_CLASS_NAME);
     if (mainClassName != null) {
       try {
         Class<?> classzz = Class.forName(mainClassName);
