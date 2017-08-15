@@ -8,6 +8,7 @@
 
     <bean id="two" class="site.zido.test.Two">
         <property name="render" value="打人"/>
+        <property name="one" ref="one"/>
     </bean>
 
     <bean id="one" class="site.zido.test.One">
