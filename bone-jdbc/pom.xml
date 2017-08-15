@@ -11,5 +11,11 @@
 
     <artifactId>bone-jdbc</artifactId>
     <description>bone持久层，负责数据库连接</description>
-
+    <dependencies>
+        <dependency>
+            <groupId>site.zido.bone</groupId>
+            <artifactId>bone-core</artifactId>
+            <version>0.0.1</version>
+        </dependency>
+    </dependencies>
 </project>

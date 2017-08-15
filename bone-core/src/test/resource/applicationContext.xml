@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans>
+    <bean id="one" class="site.zido.test.One">
+        <property name="name" value="zhangsan"/>
+        <property name="age" value="1"/>
+    </bean>
+</beans>

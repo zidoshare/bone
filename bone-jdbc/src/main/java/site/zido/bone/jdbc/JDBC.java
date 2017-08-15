@@ -1,10 +1,8 @@
 package site.zido.bone.jdbc;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
-import site.zido.core.beans.BeanFactory;
 import site.zido.core.beans.BoneContext;
 import site.zido.core.props.DataSourceProps;
-import site.zido.utils.commons.PropertiesUtils;
 
 import java.beans.PropertyVetoException;
 import java.sql.Connection;

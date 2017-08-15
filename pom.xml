@@ -37,25 +37,26 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>site.zido</groupId>
-      <artifactId>zido-utils</artifactId>
-      <version>0.0.2</version>
-    </dependency>
-    <dependency>
       <groupId>c3p0</groupId>
       <artifactId>c3p0</artifactId>
       <version>0.9.1.2</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>site.zido.bone</groupId>
-      <artifactId>bone-core</artifactId>
-      <version>0.0.1</version>
-    </dependency>
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.12</version>
+    </dependency>
+    <!--xml 文件解析-->
+    <dependency>
+      <groupId>dom4j</groupId>
+      <artifactId>dom4j</artifactId>
+      <version>1.6.1</version>
+    </dependency>
+    <dependency>
+      <groupId>jaxen</groupId>
+      <artifactId>jaxen</artifactId>
+      <version>1.1.6</version>
     </dependency>
   </dependencies>
   <!--使用阿里云中心仓库-->

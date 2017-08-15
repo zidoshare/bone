@@ -3,7 +3,7 @@ package site.zido.core.beans;
 /**
  * 容器
  */
-public class BoneContext implements BeanFactory{
+public class BoneContext implements BeanFactory {
     private static BoneContext boneContext = new BoneContext();
     private BoneContext(){}
 
