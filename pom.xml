@@ -12,7 +12,9 @@
     <module>bone-core</module>
     <module>bone-jdbc</module>
     <module>zido-utils</module>
+    <module>bone-logger</module>
   </modules>
+
   <properties>
     <java.version>1.8</java.version>
     <!-- 文件拷贝时的编码 -->
@@ -28,6 +30,7 @@
     <swagger2.version>2.6.1</swagger2.version>
     <brush.version>0.0.2</brush.version>
     <mybatisplus.version>2.0.8</mybatisplus.version>
+    <slf4j.version>1.7.7</slf4j.version>
   </properties>
   <dependencies>
     <dependency>
@@ -57,6 +60,17 @@
       <groupId>jaxen</groupId>
       <artifactId>jaxen</artifactId>
       <version>1.1.6</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-jdk14</artifactId>
+      <version>${slf4j.version}</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
   <!--使用阿里云中心仓库-->

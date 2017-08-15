@@ -9,18 +9,20 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>bone-core</artifactId>
-    <description>框架核心，包括基础环境/核心工具（底层工具）/资源加载等</description>
+    <artifactId>bone-logger</artifactId>
+
+    <description>日志支持模块</description>
     <dependencies>
         <dependency>
-            <groupId>site.zido</groupId>
-            <artifactId>zido-utils</artifactId>
-            <version>0.0.2</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
         </dependency>
+
         <dependency>
-            <groupId>site.zido.bone</groupId>
-            <artifactId>bone-logger</artifactId>
-            <version>0.0.1</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <version>${slf4j.version}</version>
         </dependency>
     </dependencies>
 </project>
