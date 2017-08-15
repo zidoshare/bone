@@ -8,7 +8,7 @@ a simple java web framework，一个简单的java web框架
 
 |模块 |进度|
 |----|---|
-|ioc容器| **施工中** |
+|ioc容器| 完成xml注入， 注解注入等待解决方案|
 |aop|未完成|
 |日志支持|<del>已完成</del>|
 |mvc|未完成|

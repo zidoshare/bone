@@ -1,4 +1,4 @@
-package site.zido.core.plugins;
+package site.zido.core.plugin;
 
 public class PluginLoader {
 

@@ -3,7 +3,7 @@ package site.zido.core.beans;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Bean {
+public class Definition {
     private String id;
     private String className;
     private List<Property> properties = new ArrayList();
@@ -34,7 +34,7 @@ public class Bean {
 
     @Override
     public String toString() {
-        return "Bean {" +
+        return "Definition {" +
                 "id='" + id + '\'' +
                 ", className='" + className + '\'' +
                 ", properties=" + properties +

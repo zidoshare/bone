@@ -4,21 +4,15 @@ import site.zido.bone.logger.Logger;
 import site.zido.bone.logger.impl.LogManager;
 import site.zido.utils.commons.BeanUtils;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
 /**
  * 抽象解析类，扩展解析方式，集成此类，返回config即可。
  */
-public abstract class AbsBeanParser implements BeanFactory{
+public abstract class AbsBeanParser implements BeanFactory,IBeanParser{
 
     private Logger logger = LogManager.getLogger(AbsBeanParser.class);
-    //parser 不重复
-    public static Set<AbsBeanParser> parsers = new HashSet<>();
-    public static void registParser(AbsBeanParser parser){
-        parsers.add(parser);
-    }
     public PostBeanQueue postQueue;
     @Override
     public Object getBean(String name) {
@@ -35,24 +29,24 @@ public abstract class AbsBeanParser implements BeanFactory{
         return BoneIoc.getInstance().getBean(requireType);
     }
 
-    protected abstract Map<String,Bean> getConfig();
-
+    protected abstract Map<String,Definition> getConfig();
+    @Override
     public void parser(){
-        Map<String,Bean> config = getConfig();
+        Map<String,Definition> config = getConfig();
         if(config != null){
-            for(Map.Entry<String,Bean> entry : config.entrySet()){
+            for(Map.Entry<String,Definition> entry : config.entrySet()){
                 String beanId = entry.getKey();
-                Bean bean = entry.getValue();
+                Definition definition = entry.getValue();
 
-                Object object = createBean(bean);
+                Object object = createBean(definition);
                 BoneIoc.getInstance().register(beanId,object);
             }
             PostBeanQueue.execute(postQueue);
         }
     }
-    protected Object createBean(Bean bean){
-        String beanId = bean.getId();
-        String className = bean.getClassName();
+    protected Object createBean(Definition definition){
+        String beanId = definition.getId();
+        String className = definition.getClassName();
 
         Class _classzz = null;
 
@@ -70,8 +64,8 @@ public abstract class AbsBeanParser implements BeanFactory{
             throw new RuntimeException("该类缺少一个无参构造方法:"+_classzz.getName());
         }
 
-        if(bean.getProperties() != null){
-            for(Property p : bean.getProperties()){
+        if(definition.getProperties() != null){
+            for(Property p : definition.getProperties()){
                 if(p.getValue() != null){
                     Method method = BeanUtils.getSetterMethod(object,p.getName());
                     BeanUtils.setField(object,method,p.getValue());

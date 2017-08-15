@@ -4,9 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import site.zido.bone.logger.Logger;
 import site.zido.bone.logger.impl.LogManager;
-import site.zido.core.beans.AbsBeanParser;
-import site.zido.core.beans.BoneIoc;
-import site.zido.core.beans.XmlParser;
+import site.zido.core.beans.*;
 
 public class IocTest {
     @Test
@@ -14,8 +12,8 @@ public class IocTest {
         Logger logger = LogManager.getLogger(IocTest.class);
 
 
-        AbsBeanParser parser = new XmlParser("/applicationContext.xml");
-        parser.parser();
+        new XmlParser("/applicationContext.xml");
+        ParserManager.parserAll();
         One one = (One)BoneIoc.getInstance().getBean("one");
 
         Two two = BoneIoc.getInstance().getBean("two", Two.class);
