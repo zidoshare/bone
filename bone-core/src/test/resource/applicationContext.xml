@@ -1,7 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans>
+
+    <bean id="three" class="site.zido.test.Three">
+        <property name="one" ref="one"/>
+        <property name="two" ref="two"/>
+    </bean>
+
+    <bean id="two" class="site.zido.test.Two">
+        <property name="render" value="打人"/>
+    </bean>
+
     <bean id="one" class="site.zido.test.One">
         <property name="name" value="zhangsan"/>
         <property name="age" value="1"/>
+        <property name="two" ref="two"/>
     </bean>
 </beans>

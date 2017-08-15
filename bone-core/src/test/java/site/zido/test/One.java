@@ -3,6 +3,7 @@ package site.zido.test;
 public class One {
     private String name;
     private Integer age;
+    private Two two;
 
     public String getName() {
         return name;
@@ -20,11 +21,20 @@ public class One {
         this.age = age;
     }
 
+    public Two getTwo() {
+        return two;
+    }
+
+    public void setTwo(Two two) {
+        this.two = two;
+    }
+
     @Override
     public String toString() {
         return "One{" +
                 "name='" + name + '\'' +
                 ", age=" + age +
+                ", two=" + two +
                 '}';
     }
 }

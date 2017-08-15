@@ -1,5 +1,7 @@
 package site.zido.core.beans;
 
+import site.zido.bone.logger.Logger;
+import site.zido.bone.logger.impl.LogManager;
 import site.zido.utils.commons.BeanUtils;
 
 import java.lang.reflect.InvocationTargetException;
@@ -10,12 +12,14 @@ import java.util.*;
  * 抽象解析类，扩展解析方式，集成此类，返回config即可。
  */
 public abstract class AbsBeanParser implements BeanFactory{
+
+    private Logger logger = LogManager.getLogger(AbsBeanParser.class);
     //parser 不重复
     public static Set<AbsBeanParser> parsers = new HashSet<>();
     public static void registParser(AbsBeanParser parser){
         parsers.add(parser);
     }
-
+    public PostBeanQueue postQueue;
     @Override
     public Object getBean(String name) {
         return BoneIoc.getInstance().getBean(name);
@@ -34,7 +38,7 @@ public abstract class AbsBeanParser implements BeanFactory{
     protected abstract Map<String,Bean> getConfig();
 
     public void parser(){
-        Map<String,Bean>config = getConfig();
+        Map<String,Bean> config = getConfig();
         if(config != null){
             for(Map.Entry<String,Bean> entry : config.entrySet()){
                 String beanId = entry.getKey();
@@ -43,6 +47,7 @@ public abstract class AbsBeanParser implements BeanFactory{
                 Object object = createBean(bean);
                 BoneIoc.getInstance().register(beanId,object);
             }
+            PostBeanQueue.execute(postQueue);
         }
     }
     protected Object createBean(Bean bean){
@@ -74,7 +79,21 @@ public abstract class AbsBeanParser implements BeanFactory{
                 if(p.getRef() != null){
                     Method method = BeanUtils.getSetterMethod(object,p.getName());
                     Object o = getBean(p.getRef());
-                    BeanUtils.setField(object,method,p.getRef());
+                    if(o == null){
+                        if(postQueue == null)
+                            postQueue = new PostBeanQueue();
+                        Object finalObject = object;
+                        postQueue.addTask(() -> {
+                            Object other = BoneIoc.getInstance().getBean(p.getRef());
+                            if(other == null)
+                                return false;
+                            BeanUtils.setField(finalObject,method,other);
+                            return true;
+                        });
+                    }else{
+                        BeanUtils.setField(object,method,o);
+                    }
+
                 }
             }
         }
