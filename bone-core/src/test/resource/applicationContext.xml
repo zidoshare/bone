@@ -14,6 +14,6 @@
     <bean id="one" class="site.zido.test.One">
         <property name="name" value="zhangsan"/>
         <property name="age" value="1"/>
-        <property name="two" ref="two"/>
+        <!--<property name="two" ref="two"/> 这里加上会有循环依赖问题（已解决，正常报错）-->
     </bean>
 </beans>
