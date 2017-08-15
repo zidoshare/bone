@@ -15,8 +15,8 @@ public class IocTest {
         logger.info("hello world");
         AbsBeanParser parser = new XmlParser("/applicationContext.xml");
         parser.parser();
-        One one = (One) BoneIoc.getInstance().getBean("one");
-        System.out.println(one);
+        One one = (One)BoneIoc.getInstance().getBean("one");
+        logger.info(one.toString());
 
     }
 }

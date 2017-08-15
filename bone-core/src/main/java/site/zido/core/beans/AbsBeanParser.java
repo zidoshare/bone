@@ -69,30 +69,12 @@ public abstract class AbsBeanParser implements BeanFactory{
             for(Property p : bean.getProperties()){
                 if(p.getValue() != null){
                     Method method = BeanUtils.getSetterMethod(object,p.getName());
-                    if(method == null){
-                        throw new RuntimeException("没有相应的setter方法:"+object.getClass().getName()+"."+p.getName());
-                    }
-                    try {
-                        method.invoke(object,p.getValue());
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        throw new RuntimeException("属性名称不合法或者没有相应的setter方法："+object.getClass().getName()+"."+p.getName());
-                    }
+                    BeanUtils.setField(object,method,p.getValue());
                 }
                 if(p.getRef() != null){
                     Method method = BeanUtils.getSetterMethod(object,p.getName());
-                    if(method == null){
-                        throw new RuntimeException("属性名称不合法或者没有相应的setter方法："+object.getClass().getName()+"."+p.getName());
-                    }
                     Object o = getBean(p.getRef());
-                    if(o == null){
-                        throw new RuntimeException("容器内没有相应的对象:"+p.getRef());
-                    }else{
-                        try{
-                            method.invoke(object,o);
-                        } catch (IllegalAccessException | InvocationTargetException e) {
-                            throw new RuntimeException("属性名称不合法或者没有相应的setter方法："+object.getClass().getName()+"."+p.getName());
-                        }
-                    }
+                    BeanUtils.setField(object,method,p.getRef());
                 }
             }
         }

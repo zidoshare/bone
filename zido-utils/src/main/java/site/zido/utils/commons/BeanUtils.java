@@ -1,5 +1,6 @@
 package site.zido.utils.commons;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class BeanUtils {
@@ -12,5 +13,44 @@ public class BeanUtils {
             }
         }
         return null;
+    }
+
+    public static void setField(Object target,Method method,Object ...value){
+        if(method == null){
+            throw new RuntimeException("没有相应的setter方法:"+target.getClass().getName()+"."+method.getName());
+        }
+        Class<?>[] types = method.getParameterTypes();
+        if(types.length != value.length){
+            throw new IllegalArgumentException("参数不匹配："+target.getClass().getName()+"."+method.getName()+" 不能匹配 "+value);
+        }
+        Object args[] = new Object[types.length];
+        int i = 0;
+        for (Class<?> type : types) {
+
+            switch (type.getSimpleName()){
+                case "Integer":
+                    args[i] = Integer.valueOf(value[i++].toString());
+                    break;
+                case "Double":
+                    args[i] = Double.valueOf(value[i++].toString());
+                    break;
+                case "Float":
+                    args[i] = Double.valueOf(value[i++].toString());
+                    break;
+                case "Boolean":
+                    args[i] = Boolean.valueOf(value[i++].toString());
+                    break;
+                case "Date":
+                    args[i] = DateUtils.parseDate(value[i++].toString());
+                    break;
+                case "String":
+                    args[i] = value[i++].toString();
+            }
+        }
+        try {
+            method.invoke(target,args);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException("属性名称不合法或者没有相应的setter方法："+target.getClass().getName()+"."+method.getName());
+        }
     }
 }
