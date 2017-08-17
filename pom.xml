@@ -95,6 +95,7 @@
             <source>${java.version}</source>
             <target>${java.version}</target>
           </configuration>
+          <version>2.5.1</version>
         </plugin>
       </plugins>
     </pluginManagement>
