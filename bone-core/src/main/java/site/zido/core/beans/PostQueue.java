@@ -2,12 +2,11 @@ package site.zido.core.beans;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
 
 /**
- * 后置Bean实例化任务调度队列
+ * 任务循环执行队列
  */
-public class PostBeanQueue {
+public class PostQueue {
     private List<PostTask> list = new ArrayList<>();
     private Boolean e = false;
 
@@ -15,7 +14,7 @@ public class PostBeanQueue {
      * 一遍一遍的执行task,直到所有的task都完成
      * @param queue 队列
      */
-    public static void execute(PostBeanQueue queue){
+    public static void execute(PostQueue queue){
         if(queue.list.isEmpty())
             return ;
         queue.e = true;

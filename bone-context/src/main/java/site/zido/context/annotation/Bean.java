@@ -1,4 +1,4 @@
-package site.zido.core.beans.annotation;
+package site.zido.context.annotation;
 
 import java.lang.annotation.*;
 

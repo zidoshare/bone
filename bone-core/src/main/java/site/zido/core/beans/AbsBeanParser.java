@@ -13,7 +13,7 @@ import java.util.*;
 public abstract class AbsBeanParser implements BeanFactory,IBeanParser{
 
     private Logger logger = LogManager.getLogger(AbsBeanParser.class);
-    public PostBeanQueue postQueue;
+    public PostQueue postQueue;
     @Override
     public Object getBean(String name) {
         return BoneIoc.getInstance().getBean(name);
@@ -41,7 +41,7 @@ public abstract class AbsBeanParser implements BeanFactory,IBeanParser{
                 Object object = createBean(definition);
                 BoneIoc.getInstance().register(beanId,object);
             }
-            PostBeanQueue.execute(postQueue);
+            PostQueue.execute(postQueue);
         }
     }
     protected Object createBean(Definition definition){
@@ -75,7 +75,7 @@ public abstract class AbsBeanParser implements BeanFactory,IBeanParser{
                     Object o = getBean(p.getRef());
                     if(o == null){
                         if(postQueue == null)
-                            postQueue = new PostBeanQueue();
+                            postQueue = new PostQueue();
                         Object finalObject = object;
                         postQueue.addTask(() -> {
                             Object other = BoneIoc.getInstance().getBean(p.getRef());

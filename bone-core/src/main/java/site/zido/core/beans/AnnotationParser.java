@@ -2,10 +2,14 @@ package site.zido.core.beans;
 
 import site.zido.bone.logger.Logger;
 import site.zido.bone.logger.impl.LogManager;
+import site.zido.context.EnvResolver;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Parameter;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -28,8 +32,44 @@ public class AnnotationParser extends AbsBeanParser{
     }
 
     @Override
-    protected Map<String, Definition> getConfig() {
+    public void parser() {
 
+    }
+
+    @Override
+    protected Map<String, Definition> getConfig() {
+        Set<Class<?>> classes = getClasses();
+        Iterator<Class<?>> iter = classes.iterator();
+        PostQueue queue = new PostQueue();
+        while (iter.hasNext()){
+            Class<?> classzz = iter.next();
+            //如果是EnvResolver的子类，移交处理器链进行优先处理
+            if(classzz.isAssignableFrom(EnvResolver.class)){
+                Constructor<?>[] constructors = classzz.getConstructors();
+                if(constructors.length > 1){
+                    throw new RuntimeException("bone 并不知道你要使用哪个构造函数 : "+classzz.getName());
+                }
+                Constructor<?> cons = constructors[0];
+                Class<?>[] types = cons.getParameterTypes();
+                Object[] objs = new Object[types.length];
+                int i = 0;
+                for (Class<?> type : types) {
+                    if(type.isPrimitive()){
+                        throw new RuntimeException("构造函数不接受基础类型 ： "+classzz.getName());
+                    }
+                    Object bean = BoneIoc.getInstance().getBean(type);
+                    objs[i++] = bean;
+                }
+                try {
+                    Object o = cons.newInstance(objs);
+
+                } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                    throw new RuntimeException("实例化出错 : "+classzz.getName());
+                }
+                
+            }
+            queue.addTask(()-> true);
+        }
         return null;
     }
 
