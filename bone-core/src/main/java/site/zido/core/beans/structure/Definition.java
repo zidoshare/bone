@@ -1,4 +1,4 @@
-package site.zido.core.beans;
+package site.zido.core.beans.structure;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,7 +6,11 @@ import java.util.List;
 public class Definition {
     private String id;
     private String className;
-    private List<Property> properties = new ArrayList();
+    private List<Property> properties = new ArrayList<>();
+    /**
+     * 存储类的构造方法，以代理生成bin
+     */
+    private BeanConstruction construction;
 
     public String getId() {
         return id;
@@ -32,12 +36,21 @@ public class Definition {
         this.properties = properties;
     }
 
+    public BeanConstruction getConstruction() {
+        return construction;
+    }
+
+    public void setConstruction(BeanConstruction construction) {
+        this.construction = construction;
+    }
+
     @Override
     public String toString() {
-        return "Definition {" +
+        return "Definition{" +
                 "id='" + id + '\'' +
                 ", className='" + className + '\'' +
                 ", properties=" + properties +
+                ", construction=" + construction +
                 '}';
     }
 }

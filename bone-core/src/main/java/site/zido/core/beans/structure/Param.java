@@ -1,16 +1,16 @@
-package site.zido.core.beans;
+package site.zido.core.beans.structure;
 
-public class Property {
-    private String name;
+public class Param {
+    private String type;
     private String value;
     private String ref;
 
-    public String getName() {
-        return name;
+    public String getType() {
+        return type;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String getValue() {
@@ -31,8 +31,8 @@ public class Property {
 
     @Override
     public String toString() {
-        return "Property{" +
-                "name='" + name + '\'' +
+        return "Param{" +
+                "type='" + type + '\'' +
                 ", value='" + value + '\'' +
                 ", ref='" + ref + '\'' +
                 '}';

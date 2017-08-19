@@ -4,6 +4,8 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import site.zido.core.beans.structure.Definition;
+import site.zido.core.beans.structure.Property;
 
 import java.io.InputStream;
 import java.util.HashMap;

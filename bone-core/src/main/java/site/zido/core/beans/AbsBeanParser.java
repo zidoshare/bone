@@ -2,8 +2,14 @@ package site.zido.core.beans;
 
 import site.zido.bone.logger.Logger;
 import site.zido.bone.logger.impl.LogManager;
+import site.zido.core.beans.structure.BeanConstruction;
+import site.zido.core.beans.structure.Definition;
+import site.zido.core.beans.structure.Param;
+import site.zido.core.beans.structure.Property;
 import site.zido.utils.commons.BeanUtils;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -48,9 +54,9 @@ public abstract class AbsBeanParser implements BeanFactory,IBeanParser{
         String beanId = definition.getId();
         String className = definition.getClassName();
 
-        Class _classzz = null;
+        Class _classzz;
 
-        Object object = null;
+        Object object;
 
         try{
             _classzz = Class.forName(className);
@@ -59,9 +65,24 @@ public abstract class AbsBeanParser implements BeanFactory,IBeanParser{
         }
 
         try{
+            BeanConstruction cons = definition.getConstruction();
+            if(cons == null){
+                object = _classzz.newInstance();
+            }else{
+                Constructor[] constructors = _classzz.getConstructors();
+                if(constructors.length > 1)
+                    throw new RuntimeException("bean应当有且仅有一个构造方法："+_classzz.getName());
+                Constructor constructor = constructors[0];
+                List<Param> params = cons.getParams();
+                constructor.newInstance(params.toArray());
+            }
+
             object = _classzz.newInstance();
         } catch (IllegalAccessException | InstantiationException e) {
-            throw new RuntimeException("该类缺少一个无参构造方法:"+_classzz.getName());
+            throw new RuntimeException("该类缺少一个构造方法:"+_classzz.getName());
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+            throw new RuntimeException();
         }
 
         if(definition.getProperties() != null){

@@ -35,7 +35,7 @@ public class BeanUtils {
                     args[i] = Double.valueOf(value[i++].toString());
                     break;
                 case "Float":
-                    args[i] = Double.valueOf(value[i++].toString());
+                    args[i] = Float.valueOf(value[i++].toString());
                     break;
                 case "Boolean":
                     args[i] = Boolean.valueOf(value[i++].toString());
