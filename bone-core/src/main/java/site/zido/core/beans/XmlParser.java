@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * xml文件 Bean解析类
+ * xml文件解析器
  *
  * @author zido
  * @since 2017/5/28 0028

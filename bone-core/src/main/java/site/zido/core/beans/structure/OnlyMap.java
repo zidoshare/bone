@@ -2,7 +2,12 @@ package site.zido.core.beans.structure;
 
 import java.util.HashMap;
 import java.util.Map;
-
+/**
+ * 单键值存储结构，能够与Map操作
+ *
+ * @author zido
+ * @since 2017/21/21 下午2:21
+ */
 public class OnlyMap<K, V> {
     private K key;
     private V value;

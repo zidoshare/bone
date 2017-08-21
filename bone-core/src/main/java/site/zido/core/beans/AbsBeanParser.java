@@ -14,7 +14,10 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 /**
- * 抽象解析类，扩展解析方式，集成此类，返回config即可。
+ * 抽象解析类，扩展解析方式，继承此类，返回config即可。
+ *
+ * @author zido
+ * @since 2017/23/21 下午2:23
  */
 public abstract class AbsBeanParser implements BeanFactory,IBeanParser{
 
@@ -50,6 +53,12 @@ public abstract class AbsBeanParser implements BeanFactory,IBeanParser{
             PostQueue.execute(postQueue);
         }
     }
+
+    /**
+     * 通过Bean的定义来生成实例
+     * @param definition Bean描述
+     * @return 实例
+     */
     protected Object createBean(Definition definition){
         String beanId = definition.getId();
         String className = definition.getClassName();

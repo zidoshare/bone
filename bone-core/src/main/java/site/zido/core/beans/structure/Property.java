@@ -1,5 +1,11 @@
 package site.zido.core.beans.structure;
 
+/**
+ * 属性定义，用于描述类的属性
+ *
+ * @author zido
+ * @since 2017/22/21 下午2:22
+ */
 public class Property {
     private String name;
     private String value;

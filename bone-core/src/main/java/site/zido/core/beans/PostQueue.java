@@ -5,6 +5,9 @@ import java.util.List;
 
 /**
  * 任务循环执行队列
+ *
+ * @author zido
+ * @since 2017/30/21 下午2:30
  */
 public class PostQueue {
     private List<PostTask> list = new ArrayList<>();

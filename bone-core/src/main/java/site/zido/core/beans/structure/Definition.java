@@ -3,6 +3,12 @@ package site.zido.core.beans.structure;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Bean的定义，描述Bean,工厂会通过定义来实例化Bean
+ *
+ * @author zido
+ * @since 2017/21/21 下午2:21
+ */
 public class Definition {
     private String id;
     private String className;

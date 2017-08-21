@@ -5,7 +5,12 @@ import site.zido.core.beans.structure.OnlyMap;
 
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * 处理器管理类
+ *
+ * @author zido
+ * @since 2017/18/21 下午2:18
+ */
 public class HandlerManager {
     private static HandlerManager manager = new HandlerManager();
     //处理链

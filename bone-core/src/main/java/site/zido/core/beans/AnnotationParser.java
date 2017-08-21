@@ -16,9 +16,14 @@ import java.net.URLDecoder;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-
+/**
+ * 注解解析器
+ *
+ * @author zido
+ * @since 2017/25/21 下午2:25
+ */
 public class AnnotationParser extends AbsBeanParser{
-    //针对windows/ubuntu不同平台路径显示（不知道有没用）
+    //针对windows/linux不同平台路径显示（不知道有没用）
     private static String SEPARATOR = File.separator;
 
     private static Logger logger = LogManager.getLogger(AnnotationParser.class);
@@ -44,6 +49,7 @@ public class AnnotationParser extends AbsBeanParser{
         PostQueue queue = new PostQueue();
         while (iter.hasNext()){
             Class<?> classzz = iter.next();
+            //如果是继承子EnvResolver的，会优先处理， 例如注解处理器,优先注册进来，能够被实例化然后处理其他注解，以实现扩展性
             if(classzz.isAssignableFrom(EnvResolver.class)){
                 OnlyMap<String, Definition> result = HandlerManager.getInstance().handle(classzz);
                 result.putToMap(map);
@@ -61,6 +67,11 @@ public class AnnotationParser extends AbsBeanParser{
     public ClassLoader getCurrentClassLoader(){
         return Thread.currentThread().getContextClassLoader();
     }
+
+    /**
+     * 查找类
+     * @return 类集合
+     */
     public Set<Class<?>> findClasses(){
         //每个实例仅能查找一次
         if(!classes.isEmpty())

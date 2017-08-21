@@ -1,5 +1,8 @@
 package site.zido.core.beans.structure;
 
+/**
+ * 参数定义，描述方法的参数
+ */
 public class Param {
     private String type;
     private String value;

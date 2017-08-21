@@ -3,7 +3,12 @@ package site.zido.core.beans;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
+/**
+ * Ioc容器
+ *
+ * @author zido
+ * @since 2017/29/21 下午2:29
+ */
 public class BoneIoc implements BeanFactory,BeanProvider{
     private static BoneIoc boneIoc = new BoneIoc();
     public static BoneIoc getInstance(){

@@ -2,6 +2,7 @@ package site.zido.core.beans;
 
 /**
  * 容器
+ * @deprecated 已废除，没删除，是因为有个地方引用，暂时不想改
  */
 public class BoneContext implements BeanFactory {
     private static BoneContext boneContext = new BoneContext();

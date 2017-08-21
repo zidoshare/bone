@@ -13,6 +13,12 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Parameter;
 
+/**
+ * 默认处理器 （未完成）
+ *
+ * @author zido
+ * @since 2017/17/21 下午2:17
+ */
 public class DefaultHandler extends AbsHandler {
     private static Logger logger = LogManager.getLogger(DefaultHandler.class);
     @Override

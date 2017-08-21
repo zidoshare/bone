@@ -5,6 +5,9 @@ import java.util.List;
 
 /**
  * 本异常没有特殊意义，仅用来封装多个异常
+ *
+ * @author zido
+ * @since 2017/31/21 下午2:31
  */
 public class ManyExcepion extends Exception{
     //容纳所有异常
