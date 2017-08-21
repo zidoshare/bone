@@ -22,10 +22,5 @@
             <artifactId>bone-logger</artifactId>
             <version>0.0.1</version>
         </dependency>
-        <dependency>
-            <groupId>site.zido.bone</groupId>
-            <artifactId>bone-context</artifactId>
-            <version>0.0.1</version>
-        </dependency>
     </dependencies>
 </project>

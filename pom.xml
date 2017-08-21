@@ -14,7 +14,6 @@
         <module>zido-utils</module>
         <module>bone-logger</module>
         <module>bone-web</module>
-        <module>bone-context</module>
     </modules>
 
     <properties>
