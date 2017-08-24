@@ -4,7 +4,7 @@ import site.zido.bone.logger.Logger;
 import site.zido.bone.logger.impl.LogManager;
 import site.zido.core.beans.structure.BeanConstruction;
 import site.zido.core.beans.structure.Definition;
-import site.zido.core.beans.structure.Param;
+import site.zido.core.beans.structure.DefParam;
 import site.zido.core.beans.structure.Property;
 import site.zido.utils.commons.BeanUtils;
 
@@ -82,8 +82,8 @@ public abstract class AbsBeanParser implements BeanFactory,IBeanParser{
                 if(constructors.length > 1)
                     throw new RuntimeException("bean应当有且仅有一个构造方法："+_classzz.getName());
                 Constructor constructor = constructors[0];
-                List<Param> params = cons.getParams();
-                constructor.newInstance(params.toArray());
+                DefParam[] params = cons.getParams();
+                constructor.newInstance((Object[]) params);
             }
 
             object = _classzz.newInstance();

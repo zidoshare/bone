@@ -2,7 +2,7 @@ package site.zido.core.beans;
 
 import site.zido.bone.logger.Logger;
 import site.zido.bone.logger.impl.LogManager;
-import site.zido.core.beans.handler.HandlerManager;
+import site.zido.core.beans.handler.AnnotationHandlerManager;
 import site.zido.core.beans.handler.EnvResolver;
 import site.zido.core.beans.structure.Definition;
 import site.zido.core.beans.structure.OnlyMap;
@@ -51,7 +51,7 @@ public class AnnotationParser extends AbsBeanParser{
             Class<?> classzz = iter.next();
             //如果是继承子EnvResolver的，会优先处理， 例如注解处理器,优先注册进来，能够被实例化然后处理其他注解，以实现扩展性
             if(classzz.isAssignableFrom(EnvResolver.class)){
-                OnlyMap<String, Definition> result = HandlerManager.getInstance().handle(classzz);
+                OnlyMap<String, Definition> result = AnnotationHandlerManager.getInstance().handle(classzz);
                 result.putToMap(map);
             }
             // TODO 其他注解处理

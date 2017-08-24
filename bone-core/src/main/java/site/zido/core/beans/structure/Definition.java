@@ -18,6 +18,17 @@ public class Definition {
      */
     private BeanConstruction construction;
 
+    public Definition(){
+
+    }
+
+    public Definition(String id, String className, List<Property> properties, BeanConstruction construction) {
+        this.id = id;
+        this.className = className;
+        this.properties = properties;
+        this.construction = construction;
+    }
+
     public String getId() {
         return id;
     }
