@@ -9,6 +9,7 @@ package site.zido.core.beans.handler;
 public interface IHandlerManager {
     /**
      * 注册处理器
+     *
      * @param handler 处理器
      */
     public void registerHandler(IHandler handler);

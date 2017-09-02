@@ -1,11 +1,11 @@
 package site.zido.core.exception;
 
-public class BoneException extends Exception{
-    public BoneException(String msg){
+public class BoneException extends Exception {
+    public BoneException(String msg) {
         super(msg);
     }
 
-    public BoneException(String msg,Throwable e){
+    public BoneException(String msg, Throwable e) {
         this(msg);
         this.initCause(e);
     }

@@ -11,22 +11,22 @@ import javax.servlet.ServletContext;
  * @version 1.0.0
  */
 public class Environment {
-  private ServletContext context;
-  private String contextPath;
+    private ServletContext context;
+    private String contextPath;
 
-  public ServletContext getContext() {
-    return context;
-  }
+    public ServletContext getContext() {
+        return context;
+    }
 
-  public void setContext(ServletContext context) {
-    this.context = context;
-  }
+    public void setContext(ServletContext context) {
+        this.context = context;
+    }
 
-  public String getContextPath() {
-    return contextPath;
-  }
+    public String getContextPath() {
+        return contextPath;
+    }
 
-  public void setContextPath(String contextPath) {
-    this.contextPath = contextPath;
-  }
+    public void setContextPath(String contextPath) {
+        this.contextPath = contextPath;
+    }
 }

@@ -2,6 +2,7 @@ package site.zido.core.beans.structure;
 
 import java.util.HashMap;
 import java.util.Map;
+
 /**
  * 单键值存储结构，能够与Map操作
  *

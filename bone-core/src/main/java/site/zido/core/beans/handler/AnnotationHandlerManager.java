@@ -14,19 +14,18 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author zido
  * @since 2017/18/21 下午2:18
  */
-public class AnnotationHandlerManager implements IHandlerManager{
+public class AnnotationHandlerManager implements IHandlerManager {
     private static AnnotationHandlerManager manager = new AnnotationHandlerManager();
     //处理链
     private List<IHandler> handlers = new ArrayList<>();
-
-    public static AnnotationHandlerManager getInstance() {
-        return manager;
-    }
-
     /**
      * 注解处理器map
      */
     private Map<Class<?>, List<IHandler>> handlerMap = new ConcurrentHashMap<>();
+
+    public static AnnotationHandlerManager getInstance() {
+        return manager;
+    }
 
     /**
      * 遍历处理链，直到能返回一个描述（处理链中，只有一个能处理此注解）
@@ -45,11 +44,12 @@ public class AnnotationHandlerManager implements IHandlerManager{
 
     /**
      * 注册处理器
+     *
      * @param handler
      */
     public void registerHandler(IHandler handler) {
 
-        List<Class<?>> annos = ((IAnnotationHandler)handler).getHandleTargets();
+        List<Class<?>> annos = ((IAnnotationHandler) handler).getHandleTargets();
         for (Class<?> anno : annos) {
             if (handlerMap.containsKey(anno)) {
                 List<IHandler> iHandlers = handlerMap.get(anno);

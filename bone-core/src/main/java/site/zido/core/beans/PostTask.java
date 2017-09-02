@@ -1,4 +1,5 @@
 package site.zido.core.beans;
+
 /**
  * 单个任务
  *

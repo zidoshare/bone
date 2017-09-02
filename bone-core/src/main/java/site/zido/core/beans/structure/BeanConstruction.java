@@ -3,6 +3,7 @@ package site.zido.core.beans.structure;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 /**
  * Bean 构造方法的定义存储结构，用于描述Bean的构造方法
  *
@@ -12,18 +13,25 @@ import java.util.List;
 public class BeanConstruction {
     private List<DefParam> params = new ArrayList<>();
     private DefParam[] contents = new DefParam[0];
+
+    public static void main(String[] args) {
+        Integer[] array = new Integer[]{1, 2, 3};
+        List<Integer> list = Arrays.asList(array);
+        System.out.println(list.size());
+    }
+
     public DefParam[] getParams() {
         int length = contents.length;
-        if(length != params.size()){
+        if (length != params.size()) {
             contents = new DefParam[params.size()];
-            for(int i = 0; i < length; i++){
+            for (int i = 0; i < length; i++) {
                 contents[i] = params.get(i);
             }
         }
         return contents;
     }
 
-    public void addParam(DefParam p){
+    public void addParam(DefParam p) {
         this.params.add(p);
     }
 
@@ -32,11 +40,5 @@ public class BeanConstruction {
         return "BeanConstruction{" +
                 "params=" + params +
                 '}';
-    }
-
-    public static void main(String[] args) {
-        Integer[] array = new Integer[]{1,2,3};
-        List<Integer> list = Arrays.asList(array);
-        System.out.println(list.size());
     }
 }

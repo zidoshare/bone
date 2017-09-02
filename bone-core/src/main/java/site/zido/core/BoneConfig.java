@@ -9,5 +9,5 @@ package site.zido.core;
  * @version 1.0.0
  */
 public interface BoneConfig {
-  public void mainConf();
+    public void mainConf();
 }

@@ -14,18 +14,18 @@ import java.io.IOException;
  */
 @WebFilter(urlPatterns = "/*")
 public class ZiInitializer implements Filter {
-  public void init(FilterConfig filterConfig) throws ServletException {
-    //获取配置实例
-    ZiConfig.newInstance(filterConfig.getServletContext());
-    //获取插件
+    public void init(FilterConfig filterConfig) throws ServletException {
+        //获取配置实例
+        ZiConfig.newInstance(filterConfig.getServletContext());
+        //获取插件
 
-  }
+    }
 
-  public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-    System.out.println("filter2");
-  }
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+        System.out.println("filter2");
+    }
 
-  public void destroy() {
-    System.out.println("destroy");
-  }
+    public void destroy() {
+        System.out.println("destroy");
+    }
 }

@@ -18,7 +18,7 @@ public class Definition {
      */
     private BeanConstruction construction;
 
-    public Definition(){
+    public Definition() {
 
     }
 

@@ -8,6 +8,8 @@ package site.zido.core.beans.handler;
  */
 public abstract class EnvResolver {
     public abstract void onStart();
+
     public abstract void onChange();
+
     public abstract void onEnd();
 }

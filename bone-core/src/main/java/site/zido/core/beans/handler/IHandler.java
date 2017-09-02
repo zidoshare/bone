@@ -3,8 +3,6 @@ package site.zido.core.beans.handler;
 import site.zido.core.beans.structure.Definition;
 import site.zido.core.beans.structure.OnlyMap;
 
-import java.util.List;
-
 /**
  * IHandler 抽象处理类，用于组成处理器链来处理注解
  *
@@ -14,9 +12,10 @@ import java.util.List;
 public interface IHandler {
     /**
      * 处理方法，通过class返回 实体的id和定义 结构
+     *
      * @param handle 由调用者传入class
      * @return 定义
      */
-    public OnlyMap<String,Definition> handle(Class<?> handle);
+    public OnlyMap<String, Definition> handle(Class<?> handle);
 
 }

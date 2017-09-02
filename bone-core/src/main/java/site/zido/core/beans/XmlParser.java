@@ -21,10 +21,10 @@ import java.util.Map;
 public class XmlParser extends AbsBeanParser {
     //实体类容器
     private BoneIoc ioc = BoneIoc.getInstance();
-    private Map<String,Definition> config;
+    private Map<String, Definition> config;
     private String path = null;
 
-    public XmlParser(String path){
+    public XmlParser(String path) {
         this.path = path;
     }
 

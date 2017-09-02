@@ -22,11 +22,12 @@ import java.lang.reflect.Parameter;
  */
 public class DefaultHandler implements IHandler {
     private static Logger logger = LogManager.getLogger(DefaultHandler.class);
+
     @Override
     public OnlyMap<String, Definition> handle(Class<?> classzz) {
         //获取构造器
         Constructor<?>[] constructors = classzz.getConstructors();
-        if(constructors.length > 1){
+        if (constructors.length > 1) {
             throw new BeanHaveOneStrucureException();
         }
         Constructor<?> cons = constructors[0];
@@ -45,7 +46,7 @@ public class DefaultHandler implements IHandler {
             try {
                 beanConstruction.addParam(getValueFromAnnotation(param));
             } catch (ClassNotFoundException e) {
-                logger.warn("注入类型错误:["+classzz.getName()+"]");
+                logger.warn("注入类型错误:[" + classzz.getName() + "]");
                 objs[i++] = BoneIoc.getInstance().getBean(param.getAnnotation(Param.class).ref());
             }
         }
@@ -58,19 +59,19 @@ public class DefaultHandler implements IHandler {
     private DefParam getValueFromAnnotation(Parameter param) throws ClassNotFoundException {
         Param annotation = param.getAnnotation(Param.class);
         //如果是基本类型，查看注解上的value
-        if(param.getType().isPrimitive()){
-            if(annotation == null){
+        if (param.getType().isPrimitive()) {
+            if (annotation == null) {
 
             }
             String value = annotation.value();
-            return new DefParam(null,value,null);
-        }else{
-            if(annotation == null)
-                return new DefParam(param.getType(),null,null);
+            return new DefParam(null, value, null);
+        } else {
+            if (annotation == null)
+                return new DefParam(param.getType(), null, null);
             else {
                 return new DefParam(
                         Thread.currentThread().getContextClassLoader().loadClass(annotation.type()),
-                        null,annotation.ref());
+                        null, annotation.ref());
             }
         }
     }

@@ -1,4 +1,5 @@
 package site.zido.core.beans;
+
 /**
  * Bean工厂
  *

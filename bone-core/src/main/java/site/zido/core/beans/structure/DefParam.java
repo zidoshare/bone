@@ -11,11 +11,11 @@ public class DefParam {
     private String value;
     private String ref;
 
-    public DefParam(){
+    public DefParam() {
 
     }
 
-    public DefParam(Class<?> type,String value,String ref){
+    public DefParam(Class<?> type, String value, String ref) {
         this.type = type;
         this.value = value;
         this.ref = ref;
