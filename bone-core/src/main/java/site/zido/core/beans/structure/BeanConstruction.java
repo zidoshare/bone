@@ -14,12 +14,6 @@ public class BeanConstruction {
     private List<DefParam> params = new ArrayList<>();
     private DefParam[] contents = new DefParam[0];
 
-    public static void main(String[] args) {
-        Integer[] array = new Integer[]{1, 2, 3};
-        List<Integer> list = Arrays.asList(array);
-        System.out.println(list.size());
-    }
-
     public DefParam[] getParams() {
         int length = contents.length;
         if (length != params.size()) {

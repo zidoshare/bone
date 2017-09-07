@@ -17,6 +17,10 @@ public class Definition {
      * 存储类的构造方法，以代理生成bin
      */
     private BeanConstruction construction;
+    /**
+     * 最终实例
+     */
+    private Object object;
 
     public Definition() {
 
