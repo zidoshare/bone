@@ -14,6 +14,8 @@ public class BoneIoc implements BeanFactory, BeanProvider {
     private static BoneIoc boneIoc = new BoneIoc();
     private Map<String, Object> ioc = new HashMap<>();
 
+    private BoneIoc(){}
+
     public static BoneIoc getInstance() {
         return boneIoc;
     }

@@ -2,14 +2,10 @@ package site.zido.core.beans;
 
 import site.zido.bone.logger.Logger;
 import site.zido.bone.logger.impl.LogManager;
-import site.zido.core.beans.structure.BeanConstruction;
-import site.zido.core.beans.structure.DefParam;
-import site.zido.core.beans.structure.Definition;
-import site.zido.core.beans.structure.Property;
+import site.zido.core.beans.structure.*;
+import site.zido.core.utils.ReflectionUtils;
 import site.zido.utils.commons.BeanUtils;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 
@@ -46,11 +42,8 @@ public abstract class AbsBeanParser implements BeanFactory, IBeanParser {
         Map<String, Definition> config = getConfig();
         if (config != null) {
             for (Map.Entry<String, Definition> entry : config.entrySet()) {
-                String beanId = entry.getKey();
                 Definition definition = entry.getValue();
-
-                Object object = createBean(definition);
-                BoneIoc.getInstance().register(beanId, object);
+                registerBean(definition);
             }
             PostQueue.execute(postQueue);
         }
@@ -62,8 +55,35 @@ public abstract class AbsBeanParser implements BeanFactory, IBeanParser {
      * @param definition Bean描述
      * @return 实例
      */
-    protected Object createBean(Definition definition) {
-        String beanId = definition.getId();
+    protected void registerBean(Definition definition) {
+        if (definition.getObject() != null) {
+            Object object = definition.getObject();
+            BoneIoc.getInstance().register(definition.getId(), object);
+            return;
+        }
+        DelayMethod delayMethod = definition.getDelayMethod();
+        if (delayMethod != null) {
+            if (postQueue == null)
+                postQueue = new PostQueue();
+            postQueue.addTask(() -> {
+                String[] paramNames = delayMethod.getParamNames();
+                Class<?>[] paramTypes = delayMethod.getParamTypes();
+                Object[] params = new Object[paramTypes.length];
+                for (int i = 0; i < paramTypes.length; i++) {
+                    Object param = BoneIoc.getInstance().getBean(paramTypes[i]);
+                    if (param == null) {
+                        param = BoneIoc.getInstance().getBean(paramNames[i]);
+                        if (param == null)
+                            return false;
+                    }
+                    params[i] = param;
+                }
+                Object object = ReflectionUtils.execute(delayMethod.getMethod(), delayMethod.getTarget(), params);
+                BoneIoc.getInstance().register(definition.getId(), object);
+                return true;
+            });
+            return;
+        }
         String className = definition.getClassName();
 
         Class _classzz;
@@ -76,25 +96,12 @@ public abstract class AbsBeanParser implements BeanFactory, IBeanParser {
             throw new RuntimeException("未找到相关class类:" + className);
         }
 
-        try {
-            BeanConstruction cons = definition.getConstruction();
-            if (cons == null) {
-                object = _classzz.newInstance();
-            } else {
-                Constructor[] constructors = _classzz.getConstructors();
-                if (constructors.length > 1)
-                    throw new RuntimeException("bean应当有且仅有一个构造方法：" + _classzz.getName());
-                Constructor constructor = constructors[0];
-                DefParam[] params = cons.getParams();
-                constructor.newInstance((Object[]) params);
-            }
-
-            object = _classzz.newInstance();
-        } catch (IllegalAccessException | InstantiationException e) {
-            throw new RuntimeException("该类缺少一个构造方法:" + _classzz.getName());
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-            throw new RuntimeException();
+        BeanConstruction cons = definition.getConstruction();
+        if (cons == null) {
+            object = ReflectionUtils.newInstance(_classzz);
+        } else {
+            DefParam[] params = cons.getParams();
+            object = ReflectionUtils.newInstance(_classzz, (Object[]) params);
         }
 
         if (definition.getProperties() != null) {
@@ -124,6 +131,6 @@ public abstract class AbsBeanParser implements BeanFactory, IBeanParser {
                 }
             }
         }
-        return object;
+        BoneIoc.getInstance().register(definition.getId(), object);
     }
 }

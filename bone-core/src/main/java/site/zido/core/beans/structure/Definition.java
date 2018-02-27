@@ -22,6 +22,8 @@ public class Definition {
      */
     private Object object;
 
+    private DelayMethod delayMethod;
+
     public Definition() {
 
     }
@@ -73,5 +75,21 @@ public class Definition {
                 ", properties=" + properties +
                 ", construction=" + construction +
                 '}';
+    }
+
+    public Object getObject() {
+        return object;
+    }
+
+    public void setObject(Object object) {
+        this.object = object;
+    }
+
+    public DelayMethod getDelayMethod() {
+        return delayMethod;
+    }
+
+    public void setDelayMethod(DelayMethod delayMethod) {
+        this.delayMethod = delayMethod;
     }
 }

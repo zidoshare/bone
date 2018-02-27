@@ -2,14 +2,16 @@ package site.zido.core.beans;
 
 import site.zido.bone.logger.Logger;
 import site.zido.bone.logger.impl.LogManager;
-import site.zido.core.beans.handler.AnnotationHandlerManager;
-import site.zido.core.beans.handler.EnvResolver;
+import site.zido.core.beans.annotation.Bean;
+import site.zido.core.beans.annotation.Beans;
 import site.zido.core.beans.structure.Definition;
-import site.zido.core.beans.structure.OnlyMap;
+import site.zido.core.beans.structure.DelayMethod;
+import site.zido.core.utils.ReflectionUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -38,31 +40,65 @@ public class AnnotationParser extends AbsBeanParser {
     }
 
     @Override
-    public void parser() {
-        super.parser();
-    }
-
-    @Override
     protected Map<String, Definition> getConfig() {
-        Set<Class<?>> classes = getClasses();
+        Set<Class<?>> classes = findClasses();
         Iterator<Class<?>> iter = classes.iterator();
         Map<String, Definition> map = new HashMap<>();
-        PostQueue queue = new PostQueue();
         while (iter.hasNext()) {
             Class<?> classzz = iter.next();
-            //如果是继承子EnvResolver的，会优先处理， 例如注解处理器,优先注册进来，能够被实例化然后处理其他注解，以实现扩展性
-            if (classzz.isAssignableFrom(EnvResolver.class)) {
-                OnlyMap<String, Definition> result = AnnotationHandlerManager.getInstance().handle(classzz);
-                result.putToMap(map);
+            if (classzz.isAnnotationPresent(Beans.class)) {
+                parseClass(classzz, map);
             }
-            // TODO 其他注解处理
-            queue.addTask(() -> true);
         }
-        return null;
+        return map;
     }
 
-    private void parserClass(Class<?> classzz) {
-        Annotation[] annotations = classzz.getAnnotations();
+    private void parseClass(Class<?> classzz, Map<String, Definition> map) {
+        Object obj = ReflectionUtils.newInstance(classzz);
+        if (obj == null) {
+            return;
+        }
+        Method[] methods = classzz.getDeclaredMethods();
+        for (Method method : methods) {
+            if (method.isAnnotationPresent(Bean.class)) {
+                Definition definition = new Definition();
+                Bean annotation = method.getAnnotation(Bean.class);
+                String id = annotation.id();
+                if ("".equals(id)) {
+                    Class<?> returnType = method.getReturnType();
+                    if (returnType == null) {
+                        continue;
+                    }
+                    id = ReflectionUtils.getSimpleName(returnType);
+                }
+                if (method.getParameterCount() > 0) {
+                    DelayMethod delayMethod = new DelayMethod();
+                    delayMethod.setMethod(method);
+                    Class<?>[] parameterTypes = method.getParameterTypes();
+                    Class<?>[] paramTypes = new Class<?>[parameterTypes.length];
+                    String[] paramNames = new String[parameterTypes.length];
+                    for (int i = 0; i < parameterTypes.length; i++) {
+                        paramTypes[i] = parameterTypes[i];
+                        paramNames[i] = ReflectionUtils.getSimpleName(parameterTypes[i]);
+                    }
+                    delayMethod.setParamTypes(paramTypes);
+                    delayMethod.setTarget(obj);
+                    delayMethod.setParamNames(paramNames);
+                    definition.setDelayMethod(delayMethod);
+                    definition.setId(id);
+                    map.put(id, definition);
+                } else {
+                    try {
+                        Object o = method.invoke(obj);
+                        definition.setId(id);
+                        definition.setObject(o);
+                        map.put(id, definition);
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
     }
 
     public ClassLoader getCurrentClassLoader() {
@@ -149,7 +185,7 @@ public class AnnotationParser extends AbsBeanParser {
                 String className = file.getName().substring(0,
                         file.getName().length() - 6);
                 try {
-                    classes.add(Thread.currentThread().getContextClassLoader().loadClass(packageName + '.' + className));
+                    classes.add(getCurrentClassLoader().loadClass(packageName + '.' + className));
                 } catch (ClassNotFoundException e) {
                     logger.warn("类 [" + packageName + '.' + className + "] 加载失败");
                 }
