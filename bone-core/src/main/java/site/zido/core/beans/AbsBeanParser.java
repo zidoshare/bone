@@ -22,17 +22,17 @@ public abstract class AbsBeanParser implements BeanFactory, IBeanParser {
 
     @Override
     public Object getBean(String name) {
-        return BoneIoc.getInstance().getBean(name);
+        return BoneContext.getInstance().getBean(name);
     }
 
     @Override
     public <T> T getBean(String name, Class<T> requireType) {
-        return BoneIoc.getInstance().getBean(name, requireType);
+        return BoneContext.getInstance().getBean(name, requireType);
     }
 
     @Override
     public <T> T getBean(Class<T> requireType) {
-        return BoneIoc.getInstance().getBean(requireType);
+        return BoneContext.getInstance().getBean(requireType);
     }
 
     protected abstract Map<String, Definition> getConfig();
@@ -58,7 +58,7 @@ public abstract class AbsBeanParser implements BeanFactory, IBeanParser {
     protected void registerBean(Definition definition) {
         if (definition.getObject() != null) {
             Object object = definition.getObject();
-            BoneIoc.getInstance().register(definition.getId(), object);
+            BoneContext.getInstance().register(definition.getId(), object);
             return;
         }
         DelayMethod delayMethod = definition.getDelayMethod();
@@ -70,16 +70,16 @@ public abstract class AbsBeanParser implements BeanFactory, IBeanParser {
                 Class<?>[] paramTypes = delayMethod.getParamTypes();
                 Object[] params = new Object[paramTypes.length];
                 for (int i = 0; i < paramTypes.length; i++) {
-                    Object param = BoneIoc.getInstance().getBean(paramTypes[i]);
+                    Object param = BoneContext.getInstance().getBean(paramTypes[i]);
                     if (param == null) {
-                        param = BoneIoc.getInstance().getBean(paramNames[i]);
+                        param = BoneContext.getInstance().getBean(paramNames[i]);
                         if (param == null)
                             return false;
                     }
                     params[i] = param;
                 }
                 Object object = ReflectionUtils.execute(delayMethod.getMethod(), delayMethod.getTarget(), params);
-                BoneIoc.getInstance().register(definition.getId(), object);
+                BoneContext.getInstance().register(definition.getId(), object);
                 return true;
             });
             return;
@@ -118,7 +118,7 @@ public abstract class AbsBeanParser implements BeanFactory, IBeanParser {
                             postQueue = new PostQueue();
                         Object finalObject = object;
                         postQueue.addTask(() -> {
-                            Object other = BoneIoc.getInstance().getBean(p.getRef());
+                            Object other = BoneContext.getInstance().getBean(p.getRef());
                             if (other == null)
                                 return false;
                             BeanUtils.setField(finalObject, method, other);
@@ -131,6 +131,6 @@ public abstract class AbsBeanParser implements BeanFactory, IBeanParser {
                 }
             }
         }
-        BoneIoc.getInstance().register(definition.getId(), object);
+        BoneContext.getInstance().register(definition.getId(), object);
     }
 }

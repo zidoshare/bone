@@ -10,7 +10,7 @@ public class ClassFindTest {
     @Test
     public void findTest(){
         AnnotationParser parser = new AnnotationParser("site.zido.core.beans");
-        Set<Class<?>> classes = parser.findClasses();
+        Set<Class<?>> classes = parser.loadClasses();
         Assert.assertTrue("类扫描失败",!classes.isEmpty());
     }
 }

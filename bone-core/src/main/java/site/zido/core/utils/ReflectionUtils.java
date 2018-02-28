@@ -2,7 +2,7 @@ package site.zido.core.utils;
 
 import site.zido.bone.logger.Logger;
 import site.zido.bone.logger.impl.LogManager;
-import site.zido.core.beans.BeanHaveOneStrucureException;
+import site.zido.core.beans.BeanHaveOneConstructorException;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -21,7 +21,7 @@ public class ReflectionUtils {
         try {
             constructor = classzz.getConstructor();
         } catch (NoSuchMethodException e) {
-            throw new BeanHaveOneStrucureException();
+            throw new BeanHaveOneConstructorException();
         }
         return constructor;
     }
@@ -39,7 +39,7 @@ public class ReflectionUtils {
         } catch (IllegalAccessException e) {
             throw new RuntimeException("需要提供唯一的无参构造函数");
         } catch (InvocationTargetException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         return null;
     }
@@ -60,4 +60,6 @@ public class ReflectionUtils {
     public static String getSimpleName(Class<?> classzz) {
         return classzz.getSimpleName().substring(0, 1).toLowerCase() + classzz.getSimpleName().substring(1);
     }
+
+
 }

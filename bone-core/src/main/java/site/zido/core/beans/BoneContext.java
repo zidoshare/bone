@@ -1,8 +1,8 @@
 package site.zido.core.beans;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Ioc容器
@@ -10,14 +10,15 @@ import java.util.Map;
  * @author zido
  * @since 2017/29/21 下午2:29
  */
-public class BoneIoc implements BeanFactory, BeanProvider {
-    private static BoneIoc boneIoc = new BoneIoc();
-    private Map<String, Object> ioc = new HashMap<>();
+public class BoneContext implements BeanFactory, BeanProvider {
+    private static BoneContext boneContext = new BoneContext();
+    private Map<String, Object> ioc = new ConcurrentHashMap<>();
 
-    private BoneIoc(){}
+    private BoneContext() {
+    }
 
-    public static BoneIoc getInstance() {
-        return boneIoc;
+    public static BoneContext getInstance() {
+        return boneContext;
     }
 
     @Override

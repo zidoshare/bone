@@ -1,7 +1,7 @@
 package site.zido.bone.jdbc;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
-import site.zido.core.beans.BoneIoc;
+import site.zido.core.beans.BoneContext;
 import site.zido.core.props.DataSourceProps;
 
 import java.beans.PropertyVetoException;
@@ -12,7 +12,7 @@ public class JDBC {
     private static Connection conn;
     private static ComboPooledDataSource ds = new ComboPooledDataSource();
     public static void init(){
-        DataSourceProps dsProps = BoneIoc.getInstance().getBean(DataSourceProps.class);
+        DataSourceProps dsProps = BoneContext.getInstance().getBean(DataSourceProps.class);
         try {
             ds.setDriverClass(dsProps.getDriverName());
             ds.setJdbcUrl(dsProps.getJdbcUrl());

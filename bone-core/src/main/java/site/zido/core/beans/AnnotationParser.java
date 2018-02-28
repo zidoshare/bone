@@ -4,12 +4,15 @@ import site.zido.bone.logger.Logger;
 import site.zido.bone.logger.impl.LogManager;
 import site.zido.core.beans.annotation.Bean;
 import site.zido.core.beans.annotation.Beans;
+import site.zido.core.beans.annotation.Component;
 import site.zido.core.beans.structure.Definition;
 import site.zido.core.beans.structure.DelayMethod;
 import site.zido.core.utils.ReflectionUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.JarURLConnection;
@@ -26,12 +29,11 @@ import java.util.jar.JarFile;
  * @since 2017/25/21 下午2:25
  */
 public class AnnotationParser extends AbsBeanParser {
-    //针对windows/linux不同平台路径显示（不知道有没用）
     private static String SEPARATOR = File.separator;
 
     private static Logger logger = LogManager.getLogger(AnnotationParser.class);
 
-    private String packageName = "";
+    private String packageName;
 
     private Set<Class<?>> classes = new LinkedHashSet<>(128);
 
@@ -41,13 +43,21 @@ public class AnnotationParser extends AbsBeanParser {
 
     @Override
     protected Map<String, Definition> getConfig() {
-        Set<Class<?>> classes = findClasses();
+        Set<Class<?>> classes = loadClasses();
         Iterator<Class<?>> iter = classes.iterator();
         Map<String, Definition> map = new HashMap<>();
         while (iter.hasNext()) {
             Class<?> classzz = iter.next();
             if (classzz.isAnnotationPresent(Beans.class)) {
                 parseClass(classzz, map);
+            }else{
+                Component annotation = classzz.getAnnotation(Component.class);
+                if(annotation == null){
+                    Annotation[] annotations = classzz.getAnnotations();
+                    for (Annotation annotation1 : annotations) {
+
+                    }
+                }
             }
         }
         return map;
@@ -101,7 +111,7 @@ public class AnnotationParser extends AbsBeanParser {
         }
     }
 
-    public ClassLoader getCurrentClassLoader() {
+    private ClassLoader getCurrentClassLoader() {
         return Thread.currentThread().getContextClassLoader();
     }
 
@@ -110,53 +120,65 @@ public class AnnotationParser extends AbsBeanParser {
      *
      * @return 类集合
      */
-    public Set<Class<?>> findClasses() {
+    public Set<Class<?>> loadClasses() {
         //每个实例仅能查找一次
         if (!classes.isEmpty())
             return classes;
         //将包名转换为路径名
         String packageDirName = packageName.replace(".", SEPARATOR);
+        Enumeration<URL> resources;
         try {
-            Enumeration<URL> resources = getCurrentClassLoader().getResources(packageDirName);
-            while (resources.hasMoreElements()) {
-                URL url = resources.nextElement();
-                String protocol = url.getProtocol();
-                if ("file".equals(protocol)) {
-                    //获取路径
-                    String path = URLDecoder.decode(url.getFile(), "UTF-8");
-                    findClasses(packageName, path);
-                } else if ("jar".equals(protocol)) {
-                    JarFile jar = ((JarURLConnection) url.openConnection()).getJarFile();
-                    Enumeration<JarEntry> entries = jar.entries();
-                    while (entries.hasMoreElements()) {
-                        JarEntry entry = entries.nextElement();
-                        String name = entry.getName();
-                        if (name.startsWith(SEPARATOR)) {
-                            name = name.substring(1);
+            resources = getCurrentClassLoader().getResources(packageDirName);
+        } catch (IOException e) {
+            throw new RuntimeException(packageName + "包加载异常");
+        }
+        while (resources.hasMoreElements()) {
+            URL url = resources.nextElement();
+            String protocol = url.getProtocol();
+            if ("file".equals(protocol)) {
+                //获取路径
+                String path;
+                try {
+                    path = URLDecoder.decode(url.getFile(), "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    logger.error(url + "加载异常,编码不支持,需要UTF-8编码", e);
+                    continue;
+                }
+                loadClasses(packageName, path);
+            } else if ("jar".equals(protocol)) {
+                JarFile jar;
+                try {
+                    jar = ((JarURLConnection) url.openConnection()).getJarFile();
+                } catch (IOException e) {
+                    logger.error("jar包：" + url + "加载异常", e);
+                    continue;
+                }
+                Enumeration<JarEntry> entries = jar.entries();
+                while (entries.hasMoreElements()) {
+                    JarEntry entry = entries.nextElement();
+                    String name = entry.getName();
+                    if (name.startsWith(SEPARATOR)) {
+                        name = name.substring(1);
+                    }
+                    if (name.startsWith(packageDirName)) {
+                        int index = name.lastIndexOf(SEPARATOR);
+                        if (index != -1) {
+                            packageName = name.substring(0, index).replace(SEPARATOR, ".");
                         }
-                        if (name.startsWith(packageDirName)) {
-                            int index = name.lastIndexOf(SEPARATOR);
-                            if (index != -1) {
-                                packageName = name.substring(0, index).replace(SEPARATOR, ".");
-                            }
 
-                            if (index != -1) {
-                                if (name.endsWith(".class") && !entry.isDirectory()) {
-                                    String className = name.substring(packageName.length() + 1, name.length() - 6);
-                                    try {
-                                        classes.add(getCurrentClassLoader().loadClass(className));
-                                    } catch (ClassNotFoundException e) {
-                                        e.printStackTrace();
-                                    }
+                        if (index != -1) {
+                            if (name.endsWith(".class") && !entry.isDirectory()) {
+                                String className = name.substring(packageName.length() + 1, name.length() - 6);
+                                try {
+                                    classes.add(getCurrentClassLoader().loadClass(className));
+                                } catch (ClassNotFoundException e) {
+                                    e.printStackTrace();
                                 }
                             }
                         }
                     }
                 }
             }
-
-        } catch (IOException e) {
-            e.printStackTrace();
         }
         return classes;
     }
@@ -164,10 +186,10 @@ public class AnnotationParser extends AbsBeanParser {
     /**
      * 以文件的形式来获取包下的所有Class
      *
-     * @param packageName
-     * @param packagePath
+     * @param packageName 包名
+     * @param packagePath 路径
      */
-    private void findClasses(String packageName,
+    private void loadClasses(String packageName,
                              String packagePath) {
         File dir = new File(packagePath);
         if (!dir.exists() || !dir.isDirectory()) {
@@ -179,7 +201,7 @@ public class AnnotationParser extends AbsBeanParser {
         assert dirFiles != null;
         for (File file : dirFiles) {
             if (file.isDirectory()) {
-                findClasses(packageName + "."
+                loadClasses(packageName + "."
                         + file.getName(), file.getAbsolutePath());
             } else {
                 String className = file.getName().substring(0,
@@ -187,7 +209,7 @@ public class AnnotationParser extends AbsBeanParser {
                 try {
                     classes.add(getCurrentClassLoader().loadClass(packageName + '.' + className));
                 } catch (ClassNotFoundException e) {
-                    logger.warn("类 [" + packageName + '.' + className + "] 加载失败");
+                    logger.error("类 [" + packageName + '.' + className + "] 加载失败", e);
                 }
             }
         }
