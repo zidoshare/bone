@@ -1,6 +1,7 @@
 package site.zido.core.beans;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -10,7 +11,7 @@ import java.util.List;
  * @since 2017/30/21 下午2:30
  */
 public class PostQueue {
-    private List<PostTask> list = new ArrayList<>();
+    private List<PostTask> list = new LinkedList<>();
     private Boolean e = false;
 
     /**

@@ -5,8 +5,10 @@ import site.zido.bone.logger.impl.LogManager;
 import site.zido.core.beans.structure.*;
 import site.zido.core.utils.ReflectionUtils;
 import site.zido.utils.commons.BeanUtils;
+import site.zido.utils.commons.ValiDateUtils;
 
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,14 +37,13 @@ public abstract class AbsBeanParser implements BeanFactory, IBeanParser {
         return BoneContext.getInstance().getBean(requireType);
     }
 
-    protected abstract Map<String, Definition> getConfig();
+    protected abstract List<Definition> getConfig();
 
     @Override
     public void parser() {
-        Map<String, Definition> config = getConfig();
+        List<Definition> config = getConfig();
         if (config != null) {
-            for (Map.Entry<String, Definition> entry : config.entrySet()) {
-                Definition definition = entry.getValue();
+            for (Definition definition : config) {
                 registerBean(definition);
             }
             PostQueue.execute(postQueue);
@@ -56,39 +57,53 @@ public abstract class AbsBeanParser implements BeanFactory, IBeanParser {
      * @return 实例
      */
     protected void registerBean(Definition definition) {
-        if (definition.getObject() != null) {
-            Object object = definition.getObject();
-            BoneContext.getInstance().register(definition.getId(), object);
-            return;
-        }
-        DelayMethod delayMethod = definition.getDelayMethod();
-        if (delayMethod != null) {
+        final List<DelayMethod> delayMethods = definition.getDelayMethods();
+        if (delayMethods.size() > 0) {
             if (postQueue == null)
                 postQueue = new PostQueue();
-            postQueue.addTask(() -> {
-                String[] paramNames = delayMethod.getParamNames();
-                Class<?>[] paramTypes = delayMethod.getParamTypes();
-                Object[] params = new Object[paramTypes.length];
-                for (int i = 0; i < paramTypes.length; i++) {
-                    Object param = BoneContext.getInstance().getBean(paramTypes[i]);
-                    if (param == null) {
-                        param = BoneContext.getInstance().getBean(paramNames[i]);
-                        if (param == null)
-                            return false;
+            for (final DelayMethod delayMethod : delayMethods) {
+                postQueue.addTask(() -> {
+                    String[] paramNames = delayMethod.getParamNames();
+                    Class<?>[] paramTypes = delayMethod.getParamTypes();
+
+                    Object[] params = null;
+                    if (paramTypes != null && paramTypes.length > 0) {
+                        params = new Object[paramTypes.length];
+                        for (int i = 0; i < paramTypes.length; i++) {
+                            Object param;
+                            if (ValiDateUtils.isEmpty(paramNames[i])) {
+                                param = BoneContext.getInstance().getBean(paramTypes[i]);
+                            } else {
+                                param = BoneContext.getInstance().getBean(paramNames[i]);
+                            }
+                            if (param == null)
+                                return false;
+                            params[i] = param;
+                        }
                     }
-                    params[i] = param;
-                }
-                Object object = ReflectionUtils.execute(delayMethod.getMethod(), delayMethod.getTarget(), params);
-                BoneContext.getInstance().register(definition.getId(), object);
-                return true;
-            });
+                    Object target = delayMethod.getTarget();
+                    if (target != null) {
+                        Object object = ReflectionUtils.execute(delayMethod.getMethod(), target, params);
+                        BoneContext.getInstance().register(definition.getId(), object);
+                    } else {
+                        Object[] finalParams = params;
+                        postQueue.addTask(() -> {
+                            Object t = delayMethod.getTarget();
+                            if (t == null)
+                                return false;
+                            Object object = ReflectionUtils.execute(delayMethod.getMethod(), t, finalParams);
+                            BoneContext.getInstance().register(definition.getId(), object);
+                            return true;
+                        });
+                    }
+                    return true;
+                });
+            }
             return;
         }
         String className = definition.getClassName();
 
         Class _classzz;
-
-        Object object;
 
         try {
             _classzz = Class.forName(className);
@@ -98,12 +113,46 @@ public abstract class AbsBeanParser implements BeanFactory, IBeanParser {
 
         BeanConstruction cons = definition.getConstruction();
         if (cons == null) {
-            object = ReflectionUtils.newInstance(_classzz);
+            Object object = ReflectionUtils.newInstance(_classzz);
+            for (DelayMethod delayMethod : delayMethods) {
+                delayMethod.setTarget(object);
+            }
+            injectFieldToObject(definition);
+            BoneContext.getInstance().register(definition.getId(), object);
         } else {
-            DefParam[] params = cons.getParams();
-            object = ReflectionUtils.newInstance(_classzz, (Object[]) params);
+            postQueue.addTask(() -> {
+                List<DefParam> defParams = cons.getParams();
+                Object[] params = new Object[defParams.size()];
+                for (int i = 0; i < defParams.size(); i++) {
+                    DefParam defParam = defParams.get(i);
+                    if (!ValiDateUtils.isEmpty(defParam.getValue())) {
+                        params[i] = defParam.getValue();
+                    } else if (!ValiDateUtils.isEmpty(defParam.getRef())) {
+                        params[i] = BoneContext.getInstance().getBean(defParam.getRef());
+                    } else if (defParam.getType() != null) {
+                        params[i] = BoneContext.getInstance().getBean(defParam.getType());
+                    } else {
+                        throw new RuntimeException("构造参数解析错误");
+                    }
+                    if (params[i] == null) {
+                        return false;
+                    }
+                }
+                Object object = ReflectionUtils.newInstance(_classzz, params);
+                for (DelayMethod delayMethod : delayMethods) {
+                    delayMethod.setTarget(object);
+                }
+                injectFieldToObject(definition);
+                BoneContext.getInstance().register(definition.getId(), object);
+                return true;
+            });
         }
 
+
+    }
+
+    private void injectFieldToObject(Definition definition) {
+        Object object = definition.getObject();
         if (definition.getProperties() != null) {
             for (Property p : definition.getProperties()) {
                 if (p.getValue() != null) {
@@ -116,12 +165,11 @@ public abstract class AbsBeanParser implements BeanFactory, IBeanParser {
                     if (o == null) {
                         if (postQueue == null)
                             postQueue = new PostQueue();
-                        Object finalObject = object;
                         postQueue.addTask(() -> {
                             Object other = BoneContext.getInstance().getBean(p.getRef());
                             if (other == null)
                                 return false;
-                            BeanUtils.setField(finalObject, method, other);
+                            BeanUtils.setField(object, method, other);
                             return true;
                         });
                     } else {
@@ -131,6 +179,5 @@ public abstract class AbsBeanParser implements BeanFactory, IBeanParser {
                 }
             }
         }
-        BoneContext.getInstance().register(definition.getId(), object);
     }
 }

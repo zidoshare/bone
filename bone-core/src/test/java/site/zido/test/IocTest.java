@@ -5,6 +5,7 @@ import org.junit.Test;
 import site.zido.bone.logger.Logger;
 import site.zido.bone.logger.impl.LogManager;
 import site.zido.core.beans.*;
+import site.zido.test.anpack.CommonComponent;
 
 import java.util.Set;
 
@@ -37,5 +38,16 @@ public class IocTest {
         Assert.assertNotNull("one 注入失败", one);
         Assert.assertNotNull("two 注入失败", two);
         Assert.assertNotNull("three 注入失败", three);
+    }
+
+    /**
+     * Component注解测试
+     */
+    @Test
+    public void testComponent() {
+        IBeanParser parser = new AnnotationParser("site.zido.test.anpack");
+        parser.parser();
+        CommonComponent component = BoneContext.getInstance().getBean(CommonComponent.class);
+        Assert.assertNotNull("component 注入失败", component);
     }
 }

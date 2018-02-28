@@ -8,6 +8,7 @@ import site.zido.core.beans.structure.Definition;
 import site.zido.core.beans.structure.Property;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,15 +30,15 @@ public class XmlParser extends AbsBeanParser {
     }
 
     @Override
-    protected Map<String, Definition> getConfig() {
+    protected List<Definition> getConfig() {
         return getConfig(path);
     }
 
-    private Map<String, Definition> getConfig(String path) {
-        Map<String, Definition> configMap = new HashMap<>();
+    private List<Definition> getConfig(String path) {
+        List<Definition> configMap = new ArrayList<>(5);
         //记录ref，解决循环依赖的问题
         Map<String, String> refBuf = new HashMap<>();
-        Document doc = null;
+        Document doc;
 
         SAXReader reader = new SAXReader();
         InputStream in = XmlParser.class.getResourceAsStream(path);
@@ -81,10 +82,10 @@ public class XmlParser extends AbsBeanParser {
                         definition.getProperties().add(prop);
                     }
                 }
-                if (configMap.containsKey(id)) {
+                if (configMap.stream().anyMatch(def -> null != id && !"".equals(id) && id.equals(def.getId()))) {
                     throw new RuntimeException("bean节点id重复:" + id);
                 }
-                configMap.put(id, definition);
+                configMap.add(definition);
             }
         }
         return configMap;

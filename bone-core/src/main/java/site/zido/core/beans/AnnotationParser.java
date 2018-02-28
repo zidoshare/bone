@@ -5,16 +5,21 @@ import site.zido.bone.logger.impl.LogManager;
 import site.zido.core.beans.annotation.Bean;
 import site.zido.core.beans.annotation.Beans;
 import site.zido.core.beans.annotation.Component;
+import site.zido.core.beans.structure.BeanConstruction;
+import site.zido.core.beans.structure.DefParam;
 import site.zido.core.beans.structure.Definition;
 import site.zido.core.beans.structure.DelayMethod;
 import site.zido.core.utils.ReflectionUtils;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -42,28 +47,87 @@ public class AnnotationParser extends AbsBeanParser {
     }
 
     @Override
-    protected Map<String, Definition> getConfig() {
+    protected List<Definition> getConfig() {
         Set<Class<?>> classes = loadClasses();
         Iterator<Class<?>> iter = classes.iterator();
-        Map<String, Definition> map = new HashMap<>();
+        List<Definition> list = new ArrayList<>();
         while (iter.hasNext()) {
             Class<?> classzz = iter.next();
             if (classzz.isAnnotationPresent(Beans.class)) {
-                parseClass(classzz, map);
-            }else{
-                Component annotation = classzz.getAnnotation(Component.class);
-                if(annotation == null){
-                    Annotation[] annotations = classzz.getAnnotations();
-                    for (Annotation annotation1 : annotations) {
-
+                parseClass(classzz, list);
+            } else {
+                Component annotation = ReflectionUtils.getAnnotation(classzz, Component.class);
+                if (annotation != null) {
+                    String id = annotation.id();
+                    Definition definition = parseComponent(classzz, id);
+                    if (definition != null) {
+                        list.add(definition);
                     }
                 }
             }
         }
-        return map;
+        return list;
     }
 
-    private void parseClass(Class<?> classzz, Map<String, Definition> map) {
+    private Definition parseComponent(Class<?> classzz, String id) {
+        Definition definition = new Definition();
+        definition.setId(id);
+        definition.setClassName(classzz.getName());
+
+        //解析构造器
+        Constructor<?> constructor = ReflectionUtils.getConstructor(classzz);
+        BeanConstruction beanConstruction = new BeanConstruction();
+        Parameter[] parameters = constructor.getParameters();
+        for (Parameter parameter : parameters) {
+            DefParam defParam = new DefParam();
+            defParam.setType(parameter.getType());
+            Inject annotation = parameter.getAnnotation(Inject.class);
+            if (annotation != null) {
+                Named named = parameter.getAnnotation(Named.class);
+                if (named != null) {
+                    String name = named.value();
+                    defParam.setRef(name);
+                }
+            }
+            beanConstruction.addParam(defParam);
+        }
+        definition.setConstruction(beanConstruction);
+
+        //解析所有需要被注入的方法
+        Method[] methods = classzz.getDeclaredMethods();
+        for (Method method : methods) {
+            if (method.getAnnotation(Inject.class) == null)
+                continue;
+            DelayMethod delayMethod = parseMethod(method);
+            definition.addDelayMethod(delayMethod);
+        }
+        return definition;
+    }
+
+    private DelayMethod parseMethod(Method method) {
+        DelayMethod delayMethod = new DelayMethod();
+        delayMethod.setMethod(method);
+        if (method.getParameterCount() > 0) {
+            Class<?>[] paramTypes = method.getParameterTypes();
+
+            Parameter[] parameters = method.getParameters();
+            String[] paramNames = new String[paramTypes.length];
+            for (int i = 0; i < parameters.length; i++) {
+                Parameter parameter = parameters[i];
+                Named annotation = parameter.getAnnotation(Named.class);
+                if (annotation != null) {
+                    paramNames[i] = annotation.value();
+                } else {
+                    paramNames[i] = "";
+                }
+            }
+            delayMethod.setParamTypes(paramTypes);
+            delayMethod.setParamNames(paramNames);
+        }
+        return delayMethod;
+    }
+
+    private void parseClass(Class<?> classzz, List<Definition> list) {
         Object obj = ReflectionUtils.newInstance(classzz);
         if (obj == null) {
             return;
@@ -74,39 +138,16 @@ public class AnnotationParser extends AbsBeanParser {
                 Definition definition = new Definition();
                 Bean annotation = method.getAnnotation(Bean.class);
                 String id = annotation.id();
-                if ("".equals(id)) {
-                    Class<?> returnType = method.getReturnType();
-                    if (returnType == null) {
-                        continue;
-                    }
-                    id = ReflectionUtils.getSimpleName(returnType);
+                Class<?> returnType = method.getReturnType();
+                if (returnType == null) {
+                    continue;
                 }
-                if (method.getParameterCount() > 0) {
-                    DelayMethod delayMethod = new DelayMethod();
-                    delayMethod.setMethod(method);
-                    Class<?>[] parameterTypes = method.getParameterTypes();
-                    Class<?>[] paramTypes = new Class<?>[parameterTypes.length];
-                    String[] paramNames = new String[parameterTypes.length];
-                    for (int i = 0; i < parameterTypes.length; i++) {
-                        paramTypes[i] = parameterTypes[i];
-                        paramNames[i] = ReflectionUtils.getSimpleName(parameterTypes[i]);
-                    }
-                    delayMethod.setParamTypes(paramTypes);
-                    delayMethod.setTarget(obj);
-                    delayMethod.setParamNames(paramNames);
-                    definition.setDelayMethod(delayMethod);
-                    definition.setId(id);
-                    map.put(id, definition);
-                } else {
-                    try {
-                        Object o = method.invoke(obj);
-                        definition.setId(id);
-                        definition.setObject(o);
-                        map.put(id, definition);
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        e.printStackTrace();
-                    }
-                }
+                definition.setClassName(returnType.getName());
+                DelayMethod delayMethod = parseMethod(method);
+                delayMethod.setTarget(obj);
+                definition.addDelayMethod(delayMethod);
+                definition.setId(id);
+                list.add(definition);
             }
         }
     }

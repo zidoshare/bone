@@ -12,17 +12,9 @@ import java.util.List;
  */
 public class BeanConstruction {
     private List<DefParam> params = new ArrayList<>();
-    private DefParam[] contents = new DefParam[0];
 
-    public DefParam[] getParams() {
-        int length = contents.length;
-        if (length != params.size()) {
-            contents = new DefParam[params.size()];
-            for (int i = 0; i < length; i++) {
-                contents[i] = params.get(i);
-            }
-        }
-        return contents;
+    public List<DefParam> getParams() {
+        return params;
     }
 
     public void addParam(DefParam p) {

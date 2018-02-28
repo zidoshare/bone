@@ -3,7 +3,11 @@ package site.zido.core.utils;
 import site.zido.bone.logger.Logger;
 import site.zido.bone.logger.impl.LogManager;
 import site.zido.core.beans.BeanHaveOneConstructorException;
+import site.zido.core.beans.structure.BeanConstruction;
 
+import java.lang.annotation.Annotation;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -17,13 +21,11 @@ public class ReflectionUtils {
     private static Logger logger = LogManager.getLogger(ReflectionUtils.class);
 
     public static Constructor<?> getConstructor(Class<?> classzz) {
-        Constructor<?> constructor;
-        try {
-            constructor = classzz.getConstructor();
-        } catch (NoSuchMethodException e) {
+        Constructor<?>[] constructors = classzz.getConstructors();
+        if (constructors == null || constructors.length != 1)
             throw new BeanHaveOneConstructorException();
-        }
-        return constructor;
+
+        return constructors[0];
     }
 
     public static Object newInstance(Class<?> classzz, Object... params) {
@@ -61,5 +63,29 @@ public class ReflectionUtils {
         return classzz.getSimpleName().substring(0, 1).toLowerCase() + classzz.getSimpleName().substring(1);
     }
 
-
+    public static <T extends Annotation> T getAnnotation(Class<?> targetClass, Class<T> targetAnnotationType) {
+        Target target = targetAnnotationType.getAnnotation(Target.class);
+        ElementType[] elementTypes = target.value();
+        boolean toTop = false;
+        for (ElementType elementType : elementTypes) {
+            if (elementType.equals(ElementType.ANNOTATION_TYPE)) {
+                toTop = true;
+                break;
+            }
+        }
+        T annotation = targetClass.getAnnotation(targetAnnotationType);
+        if (annotation != null) {
+            return annotation;
+        }
+        if (!toTop) {
+            return null;
+        }
+        Annotation[] annotations = targetClass.getAnnotations();
+        for (Annotation other : annotations) {
+            T result = getAnnotation(other.getClass(), targetAnnotationType);
+            if (result != null)
+                return result;
+        }
+        return null;
+    }
 }

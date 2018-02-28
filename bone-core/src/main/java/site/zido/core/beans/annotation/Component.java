@@ -7,8 +7,9 @@ import java.lang.annotation.*;
  *
  * @author zido
  */
-@Target({ElementType.TYPE,ElementType.ANNOTATION_TYPE})
+@Target({ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Component {
+    String id() default "";
 }

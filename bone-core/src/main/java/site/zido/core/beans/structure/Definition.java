@@ -10,7 +10,7 @@ import java.util.List;
  * @since 2017/21/21 下午2:21
  */
 public class Definition {
-    private String id;
+    private String id = "";
     private String className;
     private List<Property> properties = new ArrayList<>();
     /**
@@ -22,7 +22,7 @@ public class Definition {
      */
     private Object object;
 
-    private DelayMethod delayMethod;
+    private List<DelayMethod> delayMethods = new ArrayList<>(3);
 
     public Definition() {
 
@@ -85,11 +85,15 @@ public class Definition {
         this.object = object;
     }
 
-    public DelayMethod getDelayMethod() {
-        return delayMethod;
+    public List<DelayMethod> getDelayMethods() {
+        return delayMethods;
     }
 
-    public void setDelayMethod(DelayMethod delayMethod) {
-        this.delayMethod = delayMethod;
+    public void setDelayMethods(List<DelayMethod> delayMethods) {
+        this.delayMethods = delayMethods;
+    }
+
+    public void addDelayMethod(DelayMethod delayMethod) {
+        delayMethods.add(delayMethod);
     }
 }
