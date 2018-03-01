@@ -18,8 +18,8 @@ public class IocTest {
         IBeanParser xmlParser = new XmlParser("/applicationContext.xml");
         xmlParser.parser();
         One one = (One) BoneContext.getInstance().getBean("one");
-        Two two = BoneContext.getInstance().getBean("two", Two.class);
-        Three three = BoneContext.getInstance().getBean("three", Three.class);
+        Two two = (Two) BoneContext.getInstance().getBean("two", Two.class);
+        Three three = (Three) BoneContext.getInstance().getBean("three", Three.class);
         Assert.assertNotNull("one 注入失败", one);
         Assert.assertNotNull("two 注入失败", two);
         Assert.assertNotNull("three 注入失败", three);
@@ -32,9 +32,9 @@ public class IocTest {
     public void testAnnotation() {
         IBeanParser parser = new AnnotationParser("site.zido.test.anpack");
         parser.parser();
-        One one = (One) BoneContext.getInstance().getBean("one");
-        Two two = BoneContext.getInstance().getBean("two", Two.class);
-        Three three = BoneContext.getInstance().getBean("three", Three.class);
+        One one = (One) BoneContext.getInstance().getBean(One.class);
+        Two two = (Two) BoneContext.getInstance().getBean(Two.class);
+        Three three = (Three) BoneContext.getInstance().getBean("three");
         Assert.assertNotNull("one 注入失败", one);
         Assert.assertNotNull("two 注入失败", two);
         Assert.assertNotNull("three 注入失败", three);
@@ -47,7 +47,7 @@ public class IocTest {
     public void testComponent() {
         IBeanParser parser = new AnnotationParser("site.zido.test.anpack");
         parser.parser();
-        CommonComponent component = BoneContext.getInstance().getBean(CommonComponent.class);
+        CommonComponent component = (CommonComponent) BoneContext.getInstance().getBean("common", CommonComponent.class);
         Assert.assertNotNull("component 注入失败", component);
     }
 }

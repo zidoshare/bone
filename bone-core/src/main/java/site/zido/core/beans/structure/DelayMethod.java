@@ -14,8 +14,9 @@ public class DelayMethod {
     private Class<?>[] paramTypes;
     private Method method;
     private Object target;
-    public Object execute(Object ...params){
-        return ReflectionUtils.execute(method,target,params);
+
+    public Object execute(Object... params) {
+        return ReflectionUtils.execute(method, target, params);
     }
 
     public String[] getParamNames() {

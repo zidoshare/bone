@@ -9,7 +9,7 @@ package site.zido.core.beans;
 public interface BeanFactory {
     Object getBean(String name);
 
-    <T> T getBean(String name, Class<T> requireType);
+    Object getBean(String id, Class<?> requireType);
 
-    <T> T getBean(Class<T> requireType);
+    Object getBean(Class<?> requireType);
 }

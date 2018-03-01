@@ -29,7 +29,7 @@ public class OneConfigurations {
         return two;
     }
 
-    @Bean
+    @Bean(id = "three")
     public Three getThree(One one, Two two) {
         Three three = new Three();
         three.setOne(one);

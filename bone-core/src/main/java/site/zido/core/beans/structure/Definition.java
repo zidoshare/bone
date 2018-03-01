@@ -17,10 +17,6 @@ public class Definition {
      * 存储类的构造方法，以代理生成bin
      */
     private BeanConstruction construction;
-    /**
-     * 最终实例
-     */
-    private Object object;
 
     private List<DelayMethod> delayMethods = new ArrayList<>(3);
 
@@ -75,14 +71,6 @@ public class Definition {
                 ", properties=" + properties +
                 ", construction=" + construction +
                 '}';
-    }
-
-    public Object getObject() {
-        return object;
-    }
-
-    public void setObject(Object object) {
-        this.object = object;
     }
 
     public List<DelayMethod> getDelayMethods() {

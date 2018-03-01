@@ -1,6 +1,9 @@
 package site.zido.core.beans;
 
+import site.zido.utils.commons.ValiDateUtils;
+
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -12,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class BoneContext implements BeanFactory, BeanProvider {
     private static BoneContext boneContext = new BoneContext();
-    private Map<String, Object> ioc = new ConcurrentHashMap<>();
+    private Map<Class<?>, Map<String, Object>> ioc = new ConcurrentHashMap<>();
 
     private BoneContext() {
     }
@@ -22,38 +25,69 @@ public class BoneContext implements BeanFactory, BeanProvider {
     }
 
     @Override
-    public Object getBean(String name) {
-        return ioc.get(name);
+    public Object getBean(String id) {
+        return getBean(id, null);
     }
 
     @Override
-    public <T> T getBean(String name, Class<T> requireType) {
-        return (T) ioc.get(name);
-    }
-
-    @Override
-    public <T> T getBean(Class<T> requireType) {
-        Collection<Object> values = ioc.values();
-        for (Object value : values) {
-            if (value.getClass().getName().equals(requireType.getName()))
-                return (T) value;
+    public Object getBean(String id, Class<?> requireType) {
+        if (id == null && requireType == null) {
+            return null;
         }
-        return null;
+        Map<String, Object> classMap = null;
+        if (requireType == null) {
+            Collection<Map<String, Object>> values = ioc.values();
+            for (Map<String, Object> value : values) {
+                if (value.containsKey(id)) {
+                    classMap = value;
+                    break;
+                }
+                classMap = null;
+            }
+        } else {
+            classMap = ioc.get(requireType);
+        }
+        if (classMap == null) {
+            return null;
+        }
+        return classMap.get(id);
     }
 
     @Override
-    public void register(String name, Class<?> requireType, Object o) {
-        ioc.put(name, o);
+    public Object getBean(Class<?> requireType) {
+        if (requireType == null) {
+            return null;
+        }
+        return getBean("", requireType);
     }
 
     @Override
-    public void register(String name, Object o) {
-        ioc.put(name, o);
+    public void register(String id, Object o) {
+        if (o == null) {
+            return;
+        }
+        Class<?> requireType = o.getClass();
+        if (ValiDateUtils.isEmpty(id)) {
+            id = "";
+        }
+        Map<String, Object> values;
+        if (ioc.get(requireType) == null) {
+            values = new ConcurrentHashMap<>();
+        } else {
+            values = ioc.get(requireType);
+        }
+        if (values.containsKey(id)) {
+            throw new ExistsBeanException();
+        }
+        values.put(id, o);
+        ioc.put(requireType, values);
     }
 
     @Override
-    public void register(Class<?> requireType, Object o) {
-        String name = requireType.getName();
-        ioc.put(name, o);
+    public void register(Object o) {
+        if (o == null) {
+            return;
+        }
+        register("", o);
     }
 }

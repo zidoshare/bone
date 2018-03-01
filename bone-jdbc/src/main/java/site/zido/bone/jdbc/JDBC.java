@@ -12,7 +12,7 @@ public class JDBC {
     private static Connection conn;
     private static ComboPooledDataSource ds = new ComboPooledDataSource();
     public static void init(){
-        DataSourceProps dsProps = BoneContext.getInstance().getBean(DataSourceProps.class);
+        DataSourceProps dsProps = (DataSourceProps) BoneContext.getInstance().getBean(DataSourceProps.class);
         try {
             ds.setDriverClass(dsProps.getDriverName());
             ds.setJdbcUrl(dsProps.getJdbcUrl());

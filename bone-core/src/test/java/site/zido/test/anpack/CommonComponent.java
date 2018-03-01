@@ -8,7 +8,7 @@ import site.zido.test.Two;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-@Component
+@Component(id = "common")
 public class CommonComponent {
     private One one;
     private Two two;

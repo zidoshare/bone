@@ -142,7 +142,6 @@ public class AnnotationParser extends AbsBeanParser {
                 if (returnType == null) {
                     continue;
                 }
-                definition.setClassName(returnType.getName());
                 DelayMethod delayMethod = parseMethod(method);
                 delayMethod.setTarget(obj);
                 definition.addDelayMethod(delayMethod);
