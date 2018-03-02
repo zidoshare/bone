@@ -10,6 +10,7 @@ public class Property {
     private String name;
     private String value;
     private String ref;
+    private Class<?> type;
 
     public String getName() {
         return name;
@@ -42,5 +43,13 @@ public class Property {
                 ", value='" + value + '\'' +
                 ", ref='" + ref + '\'' +
                 '}';
+    }
+
+    public Class<?> getType() {
+        return type;
+    }
+
+    public void setType(Class<?> type) {
+        this.type = type;
     }
 }

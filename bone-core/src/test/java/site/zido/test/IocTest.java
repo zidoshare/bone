@@ -49,5 +49,6 @@ public class IocTest {
         parser.parser();
         CommonComponent component = (CommonComponent) BoneContext.getInstance().getBean("common", CommonComponent.class);
         Assert.assertNotNull("component 注入失败", component);
+        Assert.assertNotNull("Inject 属性注入失败", component.getOtherOne());
     }
 }

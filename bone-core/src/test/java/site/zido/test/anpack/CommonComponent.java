@@ -13,6 +13,8 @@ public class CommonComponent {
     private One one;
     private Two two;
     private Three three;
+    @Inject
+    private One otherOne;
 
     public CommonComponent(One one) {
         this.one = one;
@@ -38,5 +40,13 @@ public class CommonComponent {
 
     public Three getThree() {
         return three;
+    }
+
+    public One getOtherOne() {
+        return otherOne;
+    }
+
+    public void setOtherOne(One otherOne) {
+        this.otherOne = otherOne;
     }
 }

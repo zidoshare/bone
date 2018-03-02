@@ -19,7 +19,6 @@ import java.util.List;
 public abstract class AbsBeanParser implements IBeanParser {
 
     public PostQueue postQueue = new PostQueue();
-    private Logger logger = LogManager.getLogger(AbsBeanParser.class);
 
     protected abstract List<Definition> getConfig();
 
@@ -139,25 +138,23 @@ public abstract class AbsBeanParser implements IBeanParser {
     private void injectFieldToObject(Definition definition, Object object) {
         if (definition.getProperties() != null) {
             for (Property p : definition.getProperties()) {
-                if (p.getValue() != null) {
-                    Method method = BeanUtils.getSetterMethod(object, p.getName());
-                    BeanUtils.setField(object, method, p.getValue());
-                }
-                if (p.getRef() != null) {
-                    Method method = BeanUtils.getSetterMethod(object, p.getName());
-                    Object o = BoneContext.getInstance().getBean(p.getRef());
-                    if (o == null) {
-                        postQueue.addTask(() -> {
-                            Object other = BoneContext.getInstance().getBean(p.getRef());
-                            if (other == null)
-                                return false;
-                            BeanUtils.setField(object, method, other);
-                            return true;
-                        });
-                    } else {
+                Class<?> type = p.getType();
+                Method method = BeanUtils.getSetterMethod(object, p.getName());
+                if (p.getValue() == null) {
+                    postQueue.addTask(() -> {
+                        Object o = p.getValue();
+                        if (p.getRef() != null) {
+                            o = BoneContext.getInstance().getBean(p.getRef(), type);
+                        } else if (type != null) {
+                            o = BoneContext.getInstance().getBean(type);
+                        }
+                        if (o == null)
+                            return false;
                         BeanUtils.setField(object, method, o);
-                    }
-
+                        return true;
+                    });
+                } else {
+                    BeanUtils.setField(object, method, p.getValue());
                 }
             }
         }

@@ -5,10 +5,7 @@ import site.zido.bone.logger.impl.LogManager;
 import site.zido.core.beans.annotation.Bean;
 import site.zido.core.beans.annotation.Beans;
 import site.zido.core.beans.annotation.Component;
-import site.zido.core.beans.structure.BeanConstruction;
-import site.zido.core.beans.structure.DefParam;
-import site.zido.core.beans.structure.Definition;
-import site.zido.core.beans.structure.DelayMethod;
+import site.zido.core.beans.structure.*;
 import site.zido.core.utils.ReflectionUtils;
 
 import javax.inject.Inject;
@@ -16,10 +13,7 @@ import javax.inject.Named;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
+import java.lang.reflect.*;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -101,6 +95,23 @@ public class AnnotationParser extends AbsBeanParser {
             DelayMethod delayMethod = parseMethod(method);
             definition.addDelayMethod(delayMethod);
         }
+        //解析所有需要被注入的属性
+        Field[] fields = classzz.getDeclaredFields();
+        ArrayList<Property> properties = new ArrayList<>();
+        for (Field field : fields) {
+            if (field.isAnnotationPresent(Inject.class)) {
+                Property property = new Property();
+                Named named = field.getAnnotation(Named.class);
+                if (named != null) {
+                    String name = named.value();
+                    property.setRef(name);
+                }
+                property.setName(field.getName());
+                property.setType(field.getType());
+                properties.add(property);
+            }
+        }
+        definition.setProperties(properties);
         return definition;
     }
 
