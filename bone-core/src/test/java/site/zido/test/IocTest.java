@@ -2,12 +2,11 @@ package site.zido.test;
 
 import org.junit.Assert;
 import org.junit.Test;
-import site.zido.bone.logger.Logger;
-import site.zido.bone.logger.impl.LogManager;
-import site.zido.core.beans.*;
+import site.zido.bone.core.beans.AnnotationParser;
+import site.zido.bone.core.beans.BoneContext;
+import site.zido.bone.core.beans.IBeanParser;
+import site.zido.bone.core.beans.XmlParser;
 import site.zido.test.anpack.CommonComponent;
-
-import java.util.Set;
 
 public class IocTest {
     /**

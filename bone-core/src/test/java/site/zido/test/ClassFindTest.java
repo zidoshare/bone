@@ -2,7 +2,7 @@ package site.zido.test;
 
 import org.junit.Assert;
 import org.junit.Test;
-import site.zido.core.beans.AnnotationParser;
+import site.zido.bone.core.beans.AnnotationParser;
 
 import java.util.Set;
 

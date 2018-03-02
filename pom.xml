@@ -11,9 +11,8 @@
     <modules>
         <module>bone-core</module>
         <module>bone-jdbc</module>
-        <module>zido-utils</module>
         <module>bone-logger</module>
-        <module>bone-web</module>
+        <module>bone-mvc</module>
     </modules>
 
     <properties>

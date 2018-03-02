@@ -1,6 +1,6 @@
 package site.zido.test.anpack;
 
-import site.zido.core.beans.annotation.Component;
+import site.zido.bone.core.beans.annotation.Component;
 import site.zido.test.One;
 import site.zido.test.Three;
 import site.zido.test.Two;

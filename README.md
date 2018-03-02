@@ -8,7 +8,7 @@ a simple java web framework，一个简单的java web框架
 
 |模块 |进度|
 |----|---|
-|ioc容器| 完成bean的xml/注解注册，暂未完成注入|
+|ioc容器| 初步完成jsr-330规范，支持Inject,Named注解，不支持Qualifier|
 |aop|未完成|
 |日志支持|<del>已完成</del>|
 |mvc|未完成|
