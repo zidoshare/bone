@@ -13,11 +13,6 @@
     <description>框架核心，包括基础环境/核心工具（底层工具）/资源加载等</description>
     <dependencies>
         <dependency>
-            <groupId>site.zido</groupId>
-            <artifactId>zido-utils</artifactId>
-            <version>0.0.2</version>
-        </dependency>
-        <dependency>
             <groupId>site.zido.bone</groupId>
             <artifactId>bone-logger</artifactId>
             <version>0.0.1</version>

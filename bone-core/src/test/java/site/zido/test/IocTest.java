@@ -6,7 +6,10 @@ import site.zido.bone.core.beans.AnnotationParser;
 import site.zido.bone.core.beans.BoneContext;
 import site.zido.bone.core.beans.IBeanParser;
 import site.zido.bone.core.beans.XmlParser;
-import site.zido.test.anpack.CommonComponent;
+import site.zido.test.anpack.One;
+import site.zido.test.anpack.Three;
+import site.zido.test.anpack.Two;
+import site.zido.test.components.CommonComponent;
 
 public class IocTest {
     /**
@@ -16,9 +19,9 @@ public class IocTest {
     public void testXmlIoc() {
         IBeanParser xmlParser = new XmlParser("/applicationContext.xml");
         xmlParser.parser();
-        One one = (One) BoneContext.getInstance().getBean("one");
-        Two two = (Two) BoneContext.getInstance().getBean("two", Two.class);
-        Three three = (Three) BoneContext.getInstance().getBean("three", Three.class);
+        Object one = BoneContext.getInstance().getBean("one");
+        Object two = BoneContext.getInstance().getBean("two", site.zido.test.xml.Two.class);
+        Object three = BoneContext.getInstance().getBean("three", site.zido.test.xml.Three.class);
         Assert.assertNotNull("one 注入失败", one);
         Assert.assertNotNull("two 注入失败", two);
         Assert.assertNotNull("three 注入失败", three);
@@ -31,9 +34,9 @@ public class IocTest {
     public void testAnnotation() {
         IBeanParser parser = new AnnotationParser("site.zido.test.anpack");
         parser.parser();
-        One one = (One) BoneContext.getInstance().getBean(One.class);
-        Two two = (Two) BoneContext.getInstance().getBean(Two.class);
-        Three three = (Three) BoneContext.getInstance().getBean("three");
+        Object one = BoneContext.getInstance().getBean(One.class);
+        Object two = BoneContext.getInstance().getBean(Two.class);
+        Object three = BoneContext.getInstance().getBean("three");
         Assert.assertNotNull("one 注入失败", one);
         Assert.assertNotNull("two 注入失败", two);
         Assert.assertNotNull("three 注入失败", three);
@@ -44,7 +47,7 @@ public class IocTest {
      */
     @Test
     public void testComponent() {
-        IBeanParser parser = new AnnotationParser("site.zido.test.anpack");
+        IBeanParser parser = new AnnotationParser("site.zido.test.components");
         parser.parser();
         CommonComponent component = (CommonComponent) BoneContext.getInstance().getBean("common", CommonComponent.class);
         Assert.assertNotNull("component 注入失败", component);

@@ -1,4 +1,4 @@
-package site.zido.test;
+package site.zido.test.components;
 
 public class Two {
     private String render;

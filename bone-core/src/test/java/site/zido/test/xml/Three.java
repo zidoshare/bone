@@ -1,4 +1,4 @@
-package site.zido.test;
+package site.zido.test.xml;
 
 public class Three {
     private One one;
