@@ -1,4 +1,7 @@
-package site.zido.bone.core.utils.task;
+package site.zido.bone.core.beans;
+
+import site.zido.bone.core.utils.graph.GraphNode;
+import site.zido.bone.core.utils.graph.StrictGraph;
 
 import java.util.LinkedList;
 
@@ -8,18 +11,24 @@ import java.util.LinkedList;
  * @author zido
  * @since 2017/30/21 下午2:30
  */
-public class PostQueue {
+public class PostGraph extends StrictGraph {
 
     private LinkedList<PostTask> list = new LinkedList<>();
-    private Boolean e = false;
+
+    public PostGraph(GraphNode node) {
+        super(node);
+    }
+
+    public static PostGraph newGraph() {
+        return new PostGraph(new GraphNode());
+    }
 
     /**
      * 一遍一遍的执行task,直到所有的task都完成
      *
      * @param queue 队列
      */
-    public static boolean execute(PostQueue queue) {
-        queue.e = true;
+    public static boolean execute(PostGraph queue) {
         int len = queue.list.size();
         LinkedList<PostTask> tempList = new LinkedList<>();
         while (!queue.list.isEmpty()) {
@@ -39,21 +48,5 @@ public class PostQueue {
         }
         queue.list = tempList;
         return execute(queue);
-    }
-
-    public void addTask(PostTask task) {
-        list.offer(task);
-    }
-
-    public boolean isEnd() {
-        return e && list.isEmpty();
-    }
-
-    public LinkedList<PostTask> getList() {
-        return list;
-    }
-
-    public void setList(LinkedList<PostTask> list) {
-        this.list = list;
     }
 }

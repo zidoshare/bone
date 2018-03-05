@@ -3,9 +3,9 @@ package site.zido.bone.core.beans;
 import site.zido.bone.core.beans.structure.DefProperty;
 import site.zido.bone.core.beans.structure.Definition;
 import site.zido.bone.core.utils.ValiDateUtils;
-import site.zido.bone.core.utils.task.PostTask;
+import site.zido.bone.core.utils.graph.GraphNode;
 
-public abstract class BeanExecuteTask implements PostTask {
+public abstract class BeanExecuteTask extends PostTask {
     private DefProperty[] properties;
     private Definition definition;
 
@@ -34,6 +34,14 @@ public abstract class BeanExecuteTask implements PostTask {
         }
         run(params);
         return true;
+    }
+
+    public void addToGraph(PostGraph graph) {
+        for (GraphNode node : graph) {
+            if (node instanceof BeanExecuteTask) {
+                //TODO 添加到图中
+            }
+        }
     }
 
     public DefProperty[] getProperties() {

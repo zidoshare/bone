@@ -6,8 +6,8 @@ import site.zido.bone.core.beans.structure.Definition;
 import site.zido.bone.core.beans.structure.DelayMethod;
 import site.zido.bone.core.exception.beans.FatalBeansException;
 import site.zido.bone.core.utils.ReflectionUtils;
-import site.zido.bone.core.utils.task.PostQueue;
-import site.zido.bone.core.utils.task.PostTask;
+import site.zido.bone.core.utils.graph.Graph;
+import site.zido.bone.core.utils.graph.GraphNode;
 
 import java.lang.reflect.Method;
 import java.util.LinkedList;
@@ -21,7 +21,7 @@ import java.util.List;
  */
 public abstract class AbsBeanParser implements IBeanParser {
 
-    private PostQueue postQueue = new PostQueue();
+    private PostGraph postGraph = PostGraph.newGraph();
 
     protected abstract List<Definition> getConfig();
 
@@ -32,10 +32,10 @@ public abstract class AbsBeanParser implements IBeanParser {
             for (Definition definition : config) {
                 registerBean(definition);
             }
-            if (!PostQueue.execute(postQueue)) {
-                LinkedList<PostTask> list = postQueue.getList();
+            if (!PostGraph.execute(postGraph)) {
+                List<GraphNode> list = postGraph.getList();
                 StringBuilder sb = new StringBuilder("Bean实例化异常，请检查依赖是否被注入或包含循环依赖，以下为执行集合：\n");
-                for (PostTask postTask : list) {
+                for (GraphNode postTask : list) {
                     String idStr = "";
                     String beanClass;
                     StringBuilder needStr = new StringBuilder();
@@ -87,7 +87,7 @@ public abstract class AbsBeanParser implements IBeanParser {
                 }
                 BoneContext.getInstance().register(definition.getId(), object);
             } else {
-                postQueue.addTask(new BeanExecuteTask() {
+                postGraph.addChild(new BeanExecuteTask() {
                     @Override
                     public void run(Object[] params) {
                         Object object = ReflectionUtils.instantiateClass(cons.getConstructor(), params);
@@ -104,7 +104,7 @@ public abstract class AbsBeanParser implements IBeanParser {
 
         if (delayMethods.size() > 0) {
             for (final DelayMethod delayMethod : delayMethods) {
-                postQueue.addTask(new BeanExecuteTask() {
+                postGraph.addChild(new BeanExecuteTask() {
                     @Override
                     public void run(Object[] params) {
                         Object target = delayMethod.getTarget();
@@ -112,7 +112,7 @@ public abstract class AbsBeanParser implements IBeanParser {
                             Object object = delayMethod.execute(params);
                             BoneContext.getInstance().register(definition.getId(), object);
                         } else {
-                            postQueue.addTask(new ExtraBeanExecuteTask() {
+                            postGraph.addChild(new ExtraBeanExecuteTask() {
                                 @Override
                                 public boolean check() {
                                     return null != delayMethod.getTarget();
@@ -136,7 +136,7 @@ public abstract class AbsBeanParser implements IBeanParser {
             for (DefProperty p : definition.getProperties()) {
                 Method method = ReflectionUtils.getSetterMethod(object, p.getName());
                 if (p.getValue() == null) {
-                    postQueue.addTask(new BeanExecuteTask() {
+                    postGraph.addChild(new BeanExecuteTask() {
                         @Override
                         public void run(Object[] params) {
                             ReflectionUtils.setField(object, method, params[0]);
