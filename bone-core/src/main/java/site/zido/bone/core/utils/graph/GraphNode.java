@@ -3,12 +3,17 @@ package site.zido.bone.core.utils.graph;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GraphNode {
+public abstract class GraphNode {
     private List<GraphNode> nodes = new ArrayList<>(3);
-    private GraphNode parent = null;
+    private List<GraphNode> parents = new ArrayList<>(3);
+
+    public GraphNode() {
+
+    }
 
     public void addNode(GraphNode node) {
         nodes.add(node);
+        node.getParents().add(this);
     }
 
     public List<GraphNode> getNodes() {
@@ -19,11 +24,11 @@ public class GraphNode {
         this.nodes = nodes;
     }
 
-    public GraphNode getParent() {
-        return parent;
+    public List<GraphNode> getParents() {
+        return parents;
     }
 
-    public void setParent(GraphNode parent) {
-        this.parent = parent;
+    public void setParents(List<GraphNode> parents) {
+        this.parents = parents;
     }
 }

@@ -7,7 +7,7 @@ public class StrictGraph extends Graph {
 
     @Override
     public GraphNode addChild(GraphNode parent, GraphNode child) throws NodeExistsException {
-        if(contains(child)){
+        if (contains(child)) {
             throw new NodeExistsException(child);
         }
         return super.addChild(parent, child);

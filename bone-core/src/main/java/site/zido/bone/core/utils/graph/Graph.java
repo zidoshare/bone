@@ -6,18 +6,14 @@ public class Graph implements Iterable<GraphNode> {
     private GraphNode root;
 
     public Graph(GraphNode node) {
-        root = node;
-        while (root.getParent() != null) {
-            root = root.getParent();
+        if (node.getParents().size() > 0) {
+            throw new NodeNotRootException(node);
         }
+        root = node;
     }
 
     public static Graph newGraph() {
-        return new Graph(new GraphNode());
-    }
-
-    public GraphNode getRoot() {
-        return root;
+        return new Graph(new NullGraphNode());
     }
 
     public GraphNode addChild(GraphNode node) {
@@ -82,8 +78,10 @@ public class Graph implements Iterable<GraphNode> {
         public void remove() {
             List<GraphNode> nodes = currentNode.getNodes();
             list.removeAll(nodes);
-            GraphNode parent = currentNode.getParent();
-            parent.getNodes().remove(currentNode);
+            List<GraphNode> parents = currentNode.getParents();
+            for (GraphNode parent : parents) {
+                parent.getNodes().remove(currentNode);
+            }
         }
     }
 

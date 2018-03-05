@@ -1,6 +1,7 @@
 package site.zido.bone.core.beans;
 
 import site.zido.bone.core.utils.graph.GraphNode;
+import site.zido.bone.core.utils.graph.NullGraphNode;
 import site.zido.bone.core.utils.graph.StrictGraph;
 
 import java.util.LinkedList;
@@ -20,7 +21,7 @@ public class PostGraph extends StrictGraph {
     }
 
     public static PostGraph newGraph() {
-        return new PostGraph(new GraphNode());
+        return new PostGraph(new NullGraphNode());
     }
 
     @Override
