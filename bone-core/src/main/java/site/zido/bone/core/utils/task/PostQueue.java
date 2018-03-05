@@ -29,11 +29,13 @@ public class PostQueue {
             }
             tempList.offer(pop);
         }
-        if (tempList.size() == len) {
-            return false;
-        }
+
         if (tempList.isEmpty()) {
             return true;
+        }
+
+        if (tempList.size() == len) {
+            return false;
         }
         queue.list = tempList;
         return execute(queue);

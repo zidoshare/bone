@@ -27,12 +27,12 @@ public class ReflectionUtils {
      * @param classzz 类
      * @return 构造器
      */
-    public static <T> Constructor<T> getConstructor(Class<T> classzz) {
-        try {
-            return classzz.getDeclaredConstructor();
-        } catch (NoSuchMethodException e) {
+    public static <T> Constructor<T> getOnlyConstructor(Class<T> classzz) {
+        Constructor<?>[] ctrs = classzz.getDeclaredConstructors();
+        if (ctrs.length != 1) {
             throw new BeanHaveOneConstructorException(classzz);
         }
+        return (Constructor<T>) ctrs[0];
     }
 
     /**

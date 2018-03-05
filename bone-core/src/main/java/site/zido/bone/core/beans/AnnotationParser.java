@@ -74,7 +74,7 @@ public class AnnotationParser extends AbsBeanParser {
         definition.setId(id);
         definition.setType(classzz);
         //解析构造器
-        Constructor<?> constructor = ReflectionUtils.getConstructor(classzz);
+        Constructor<?> constructor = ReflectionUtils.getOnlyConstructor(classzz);
         DefConstruction defConstruction = new DefConstruction(constructor);
 
         if (constructor.getParameterCount() > 0) {
