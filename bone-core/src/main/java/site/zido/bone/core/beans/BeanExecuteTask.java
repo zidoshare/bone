@@ -36,14 +36,6 @@ public abstract class BeanExecuteTask extends PostTask {
         return true;
     }
 
-    public void addToGraph(PostGraph graph) {
-        for (GraphNode node : graph) {
-            if (node instanceof BeanExecuteTask) {
-                //TODO 添加到图中
-            }
-        }
-    }
-
     public DefProperty[] getProperties() {
         return properties;
     }

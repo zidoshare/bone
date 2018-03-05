@@ -23,6 +23,16 @@ public class PostGraph extends StrictGraph {
         return new PostGraph(new GraphNode());
     }
 
+    @Override
+    public GraphNode addChild(GraphNode child) {
+        for (GraphNode node : this) {
+            if (node instanceof BeanExecuteTask) {
+                //TODO 添加到图中
+            }
+        }
+        return child;
+    }
+
     /**
      * 一遍一遍的执行task,直到所有的task都完成
      *
