@@ -4,8 +4,10 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import site.zido.bone.core.beans.structure.DefProperty;
 import site.zido.bone.core.beans.structure.Definition;
-import site.zido.bone.core.beans.structure.Property;
+import site.zido.bone.core.exception.beans.BadClassNameException;
+import site.zido.bone.core.utils.Assert;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -20,10 +22,8 @@ import java.util.Map;
  * @since 2017/5/28 0028
  */
 public class XmlParser extends AbsBeanParser {
-    //实体类容器
-    private BoneContext ioc = BoneContext.getInstance();
-    private Map<String, Definition> config;
-    private String path = null;
+
+    private String path;
 
     public XmlParser(String path) {
         this.path = path;
@@ -35,6 +35,7 @@ public class XmlParser extends AbsBeanParser {
     }
 
     private List<Definition> getConfig(String path) {
+        Assert.hasLength(path, "xml扫描路径不能为空");
         List<Definition> configMap = new ArrayList<>(5);
         //记录ref，解决循环依赖的问题
         Map<String, String> refBuf = new HashMap<>();
@@ -62,12 +63,17 @@ public class XmlParser extends AbsBeanParser {
                 String className = beanElement.attributeValue("class");
 
                 definition.setId(id);
-                definition.setClassName(className);
+                try {
+                    Class<?> clazz = getCurrentClassLoader().loadClass(className);
+                    definition.setType(clazz);
+                } catch (ClassNotFoundException e) {
+                    throw new BadClassNameException(className);
+                }
 
                 List<Element> proList = beanElement.elements("property");
                 if (proList != null) {
                     for (Element proElement : proList) {
-                        Property prop = new Property();
+                        DefProperty prop = new DefProperty();
                         String propName = proElement.attributeValue("name");
                         String propValue = proElement.attributeValue("value");
                         String propRef = proElement.attributeValue("ref");

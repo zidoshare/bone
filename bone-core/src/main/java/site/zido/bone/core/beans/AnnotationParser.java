@@ -3,7 +3,10 @@ package site.zido.bone.core.beans;
 import site.zido.bone.core.beans.annotation.Bean;
 import site.zido.bone.core.beans.annotation.Beans;
 import site.zido.bone.core.beans.annotation.Component;
-import site.zido.bone.core.beans.structure.*;
+import site.zido.bone.core.beans.structure.DefConstruction;
+import site.zido.bone.core.beans.structure.DefProperty;
+import site.zido.bone.core.beans.structure.Definition;
+import site.zido.bone.core.beans.structure.DelayMethod;
 import site.zido.bone.core.utils.ReflectionUtils;
 import site.zido.bone.logger.Logger;
 import site.zido.bone.logger.impl.LogManager;
@@ -69,26 +72,32 @@ public class AnnotationParser extends AbsBeanParser {
     private Definition parseComponent(Class<?> classzz, String id) {
         Definition definition = new Definition();
         definition.setId(id);
-        definition.setClassName(classzz.getName());
-
+        definition.setType(classzz);
         //解析构造器
         Constructor<?> constructor = ReflectionUtils.getConstructor(classzz);
-        BeanConstruction beanConstruction = new BeanConstruction();
-        Parameter[] parameters = constructor.getParameters();
-        for (Parameter parameter : parameters) {
-            DefParam defParam = new DefParam();
-            defParam.setType(parameter.getType());
-            Inject annotation = parameter.getAnnotation(Inject.class);
-            if (annotation != null) {
-                Named named = parameter.getAnnotation(Named.class);
-                if (named != null) {
-                    String name = named.value();
-                    defParam.setRef(name);
+        DefConstruction defConstruction = new DefConstruction(constructor);
+
+        if (constructor.getParameterCount() > 0) {
+            Parameter[] parameters = constructor.getParameters();
+            DefProperty[] properties = new DefProperty[parameters.length];
+            int i = 0;
+            for (Parameter parameter : parameters) {
+                DefProperty defProperty = new DefProperty();
+                defProperty.setType(parameter.getType());
+                Inject annotation = parameter.getAnnotation(Inject.class);
+                if (annotation != null) {
+                    Named named = parameter.getAnnotation(Named.class);
+                    if (named != null) {
+                        String name = named.value();
+                        defProperty.setRef(name);
+                    }
                 }
+                properties[i++] = defProperty;
             }
-            beanConstruction.addParam(defParam);
+            defConstruction.setProperties(properties);
         }
-        definition.setConstruction(beanConstruction);
+
+        definition.setConstruction(defConstruction);
 
         //解析所有需要被注入的方法
         Method[] methods = classzz.getDeclaredMethods();
@@ -100,18 +109,18 @@ public class AnnotationParser extends AbsBeanParser {
         }
         //解析所有需要被注入的属性
         Field[] fields = classzz.getDeclaredFields();
-        ArrayList<Property> properties = new ArrayList<>();
+        ArrayList<DefProperty> properties = new ArrayList<>();
         for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
-                Property property = new Property();
+                DefProperty defProperty = new DefProperty();
                 Named named = field.getAnnotation(Named.class);
                 if (named != null) {
                     String name = named.value();
-                    property.setRef(name);
+                    defProperty.setRef(name);
                 }
-                property.setName(field.getName());
-                property.setType(field.getType());
-                properties.add(property);
+                defProperty.setName(field.getName());
+                defProperty.setType(field.getType());
+                properties.add(defProperty);
             }
         }
         definition.setProperties(properties);
@@ -125,18 +134,26 @@ public class AnnotationParser extends AbsBeanParser {
             Class<?>[] paramTypes = method.getParameterTypes();
 
             Parameter[] parameters = method.getParameters();
-            String[] paramNames = new String[paramTypes.length];
+
+            DefProperty[] properties = new DefProperty[paramTypes.length];
             for (int i = 0; i < parameters.length; i++) {
                 Parameter parameter = parameters[i];
+
+                DefProperty property = new DefProperty();
+
+                property.setType(parameter.getType());
+                property.setName(parameter.getName());
                 Named annotation = parameter.getAnnotation(Named.class);
                 if (annotation != null) {
-                    paramNames[i] = annotation.value();
+                    property.setRef(annotation.value());
                 } else {
-                    paramNames[i] = "";
+                    property.setRef("");
                 }
+
+                properties[i] = property;
             }
-            delayMethod.setParamTypes(paramTypes);
-            delayMethod.setParamNames(paramNames);
+
+            delayMethod.setProperties(properties);
         }
         return delayMethod;
     }
@@ -163,10 +180,6 @@ public class AnnotationParser extends AbsBeanParser {
                 list.add(definition);
             }
         }
-    }
-
-    private ClassLoader getCurrentClassLoader() {
-        return Thread.currentThread().getContextClassLoader();
     }
 
     /**

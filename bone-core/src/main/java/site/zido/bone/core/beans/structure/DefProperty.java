@@ -1,12 +1,12 @@
 package site.zido.bone.core.beans.structure;
 
 /**
- * 属性定义，用于描述类的属性
+ * 属性定义，用于描述类的属性,方法的参数
  *
  * @author zido
  * @since 2017/22/21 下午2:22
  */
-public class Property {
+public class DefProperty {
     private String name;
     private String value;
     private String ref;
@@ -38,7 +38,7 @@ public class Property {
 
     @Override
     public String toString() {
-        return "Property{" +
+        return "DefProperty{" +
                 "name='" + name + '\'' +
                 ", value='" + value + '\'' +
                 ", ref='" + ref + '\'' +

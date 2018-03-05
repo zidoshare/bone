@@ -1,10 +1,16 @@
 package site.zido.bone.core.beans;
 
-import site.zido.bone.core.beans.structure.*;
+import site.zido.bone.core.beans.structure.DefConstruction;
+import site.zido.bone.core.beans.structure.DefProperty;
+import site.zido.bone.core.beans.structure.Definition;
+import site.zido.bone.core.beans.structure.DelayMethod;
+import site.zido.bone.core.exception.beans.FatalBeansException;
 import site.zido.bone.core.utils.ReflectionUtils;
-import site.zido.bone.core.utils.ValiDateUtils;
+import site.zido.bone.core.utils.task.PostQueue;
+import site.zido.bone.core.utils.task.PostTask;
 
 import java.lang.reflect.Method;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -15,7 +21,7 @@ import java.util.List;
  */
 public abstract class AbsBeanParser implements IBeanParser {
 
-    public PostQueue postQueue = new PostQueue();
+    private PostQueue postQueue = new PostQueue();
 
     protected abstract List<Definition> getConfig();
 
@@ -26,8 +32,38 @@ public abstract class AbsBeanParser implements IBeanParser {
             for (Definition definition : config) {
                 registerBean(definition);
             }
-            PostQueue.execute(postQueue);
+            if (!PostQueue.execute(postQueue)) {
+                LinkedList<PostTask> list = postQueue.getList();
+                StringBuilder sb = new StringBuilder("Bean实例化异常，请检查依赖是否被注入或包含循环依赖，以下为执行集合：\n");
+                for (PostTask postTask : list) {
+                    String idStr = "";
+                    String beanClass;
+                    StringBuilder needStr = new StringBuilder();
+                    if (postTask instanceof BeanExecuteTask) {
+                        BeanExecuteTask task = (BeanExecuteTask) postTask;
+                        Definition definition = task.getDefinition();
+                        if (!"".equals(definition.getId())) {
+                            idStr = " 实例[id:" + definition.getId() + "] ";
+                        }
+                        beanClass = " 实例[类:" + definition.getType().getName() + "] ";
+                        DefProperty[] properties = task.getProperties();
+                        if (properties.length > 0) {
+                            needStr.append("需要的bean为：");
+                        }
+                        for (DefProperty property : properties) {
+                            needStr.append("[").append(property.getRef()).append("|").append(property.getType().getName()).append("]");
+                        }
+                        sb.append(idStr).append(beanClass).append(needStr).append("\n");
+                    }
+                }
+                throw new FatalBeansException(sb.toString());
+            }
         }
+    }
+
+
+    ClassLoader getCurrentClassLoader() {
+        return Thread.currentThread().getContextClassLoader();
     }
 
     /**
@@ -36,23 +72,14 @@ public abstract class AbsBeanParser implements IBeanParser {
      * @param definition Bean描述
      * @return 实例
      */
-    protected void registerBean(Definition definition) {
+    private void registerBean(Definition definition) {
         final List<DelayMethod> delayMethods = definition.getDelayMethods();
 
-        String className = definition.getClassName();
-        if (!ValiDateUtils.isEmpty(className)) {
-
-            Class _classzz;
-
-            try {
-                _classzz = Class.forName(className);
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException("未找到相关class类:" + className);
-            }
-
-            BeanConstruction cons = definition.getConstruction();
+        Class<?> type = definition.getType();
+        if (type != null) {
+            DefConstruction cons = definition.getConstruction();
             if (cons == null) {
-                Object object = ReflectionUtils.newInstance(_classzz);
+                Object object = ReflectionUtils.newInstance(type);
                 injectFieldToObject(definition, object);
                 //通过构造方法生成的类，需要给类中的延迟执行方法设置目标类
                 for (DelayMethod delayMethod : delayMethods) {
@@ -60,96 +87,61 @@ public abstract class AbsBeanParser implements IBeanParser {
                 }
                 BoneContext.getInstance().register(definition.getId(), object);
             } else {
-                postQueue.addTask(() -> {
-                    List<DefParam> defParams = cons.getParams();
-                    Object[] params = new Object[defParams.size()];
-                    for (int i = 0; i < defParams.size(); i++) {
-                        DefParam defParam = defParams.get(i);
-                        if (!ValiDateUtils.isEmpty(defParam.getValue())) {
-                            params[i] = defParam.getValue();
-                        } else if (!ValiDateUtils.isEmpty(defParam.getRef())) {
-                            params[i] = BoneContext.getInstance().getBean(defParam.getRef());
-                        } else if (defParam.getType() != null) {
-                            params[i] = BoneContext.getInstance().getBean(defParam.getType());
-                        } else {
-                            throw new RuntimeException("构造参数解析错误");
+                postQueue.addTask(new BeanExecuteTask() {
+                    @Override
+                    public void run(Object[] params) {
+                        Object object = ReflectionUtils.instantiateClass(cons.getConstructor(), params);
+                        injectFieldToObject(definition, object);
+                        //通过构造方法生成的类，需要给类中的延迟执行方法设置目标类
+                        for (DelayMethod delayMethod : delayMethods) {
+                            delayMethod.setTarget(object);
                         }
-                        if (params[i] == null) {
-                            return false;
-                        }
+                        BoneContext.getInstance().register(definition.getId(), object);
                     }
-                    Object object = ReflectionUtils.newInstance(_classzz, params);
-                    injectFieldToObject(definition, object);
-                    //通过构造方法生成的类，需要给类中的延迟执行方法设置目标类
-                    for (DelayMethod delayMethod : delayMethods) {
-                        delayMethod.setTarget(object);
-                    }
-                    BoneContext.getInstance().register(definition.getId(), object);
-                    return true;
-                });
+                }.need(cons.getProperties()).produce(definition));
             }
         }
 
         if (delayMethods.size() > 0) {
             for (final DelayMethod delayMethod : delayMethods) {
-                postQueue.addTask(() -> {
-                    String[] paramNames = delayMethod.getParamNames();
-                    Class<?>[] paramTypes = delayMethod.getParamTypes();
+                postQueue.addTask(new BeanExecuteTask() {
+                    @Override
+                    public void run(Object[] params) {
+                        Object target = delayMethod.getTarget();
+                        if (target != null) {
+                            Object object = delayMethod.execute(params);
+                            BoneContext.getInstance().register(definition.getId(), object);
+                        } else {
+                            postQueue.addTask(new ExtraBeanExecuteTask() {
+                                @Override
+                                public boolean check() {
+                                    return null != delayMethod.getTarget();
+                                }
 
-                    Object[] params = null;
-                    if (paramTypes != null && paramTypes.length > 0) {
-                        params = new Object[paramTypes.length];
-                        for (int i = 0; i < paramTypes.length; i++) {
-                            Object param;
-                            if (!ValiDateUtils.isEmpty(paramNames[i])) {
-                                param = BoneContext.getInstance().getBean(paramNames[i]);
-                            } else {
-                                param = BoneContext.getInstance().getBean(paramTypes[i]);
-                            }
-                            if (param == null)
-                                return false;
-                            params[i] = param;
+                                @Override
+                                public void run(Object[] params) {
+                                    Object object = delayMethod.execute(params);
+                                    BoneContext.getInstance().register(definition.getId(), object);
+                                }
+                            }.need(this).produce(definition));
                         }
                     }
-                    Object target = delayMethod.getTarget();
-                    if (target != null) {
-                        Object object = delayMethod.execute(params);
-                        BoneContext.getInstance().register(definition.getId(), object);
-                    } else {
-                        Object[] finalParams = params;
-                        postQueue.addTask(() -> {
-                            Object t = delayMethod.getTarget();
-                            if (t == null)
-                                return false;
-                            Object object = delayMethod.execute(finalParams);
-                            BoneContext.getInstance().register(definition.getId(), object);
-                            return true;
-                        });
-                    }
-                    return true;
-                });
+                }.need(delayMethod.getProperties()).produce(definition));
             }
         }
     }
 
     private void injectFieldToObject(Definition definition, Object object) {
         if (definition.getProperties() != null) {
-            for (Property p : definition.getProperties()) {
-                Class<?> type = p.getType();
+            for (DefProperty p : definition.getProperties()) {
                 Method method = ReflectionUtils.getSetterMethod(object, p.getName());
                 if (p.getValue() == null) {
-                    postQueue.addTask(() -> {
-                        Object o = p.getValue();
-                        if (p.getRef() != null) {
-                            o = BoneContext.getInstance().getBean(p.getRef(), type);
-                        } else if (type != null) {
-                            o = BoneContext.getInstance().getBean(type);
+                    postQueue.addTask(new BeanExecuteTask() {
+                        @Override
+                        public void run(Object[] params) {
+                            ReflectionUtils.setField(object, method, params[0]);
                         }
-                        if (o == null)
-                            return false;
-                        ReflectionUtils.setField(object, method, o);
-                        return true;
-                    });
+                    }.need(new DefProperty[]{p}));
                 } else {
                     ReflectionUtils.setField(object, method, p.getValue());
                 }

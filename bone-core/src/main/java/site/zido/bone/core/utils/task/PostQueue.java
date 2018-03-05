@@ -1,4 +1,4 @@
-package site.zido.bone.core.beans;
+package site.zido.bone.core.utils.task;
 
 import java.util.LinkedList;
 
@@ -9,6 +9,7 @@ import java.util.LinkedList;
  * @since 2017/30/21 下午2:30
  */
 public class PostQueue {
+
     private LinkedList<PostTask> list = new LinkedList<>();
     private Boolean e = false;
 
@@ -17,7 +18,7 @@ public class PostQueue {
      *
      * @param queue 队列
      */
-    public static void execute(PostQueue queue) {
+    public static boolean execute(PostQueue queue) {
         queue.e = true;
         int len = queue.list.size();
         LinkedList<PostTask> tempList = new LinkedList<>();
@@ -29,13 +30,13 @@ public class PostQueue {
             tempList.offer(pop);
         }
         if (tempList.size() == len) {
-            throw new RuntimeException("依赖解析异常，包含循环依赖或有依赖未注入");
+            return false;
         }
         if (tempList.isEmpty()) {
-            return;
+            return true;
         }
         queue.list = tempList;
-        execute(queue);
+        return execute(queue);
     }
 
     public void addTask(PostTask task) {
@@ -44,5 +45,13 @@ public class PostQueue {
 
     public boolean isEnd() {
         return e && list.isEmpty();
+    }
+
+    public LinkedList<PostTask> getList() {
+        return list;
+    }
+
+    public void setList(LinkedList<PostTask> list) {
+        this.list = list;
     }
 }

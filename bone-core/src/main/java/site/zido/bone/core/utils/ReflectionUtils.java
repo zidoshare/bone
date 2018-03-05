@@ -1,6 +1,7 @@
 package site.zido.bone.core.utils;
 
-import site.zido.bone.core.beans.BeanHaveOneConstructorException;
+import site.zido.bone.core.exception.beans.BeanHaveOneConstructorException;
+import site.zido.bone.core.exception.beans.BeanInstantiationException;
 import site.zido.bone.logger.Logger;
 import site.zido.bone.logger.impl.LogManager;
 
@@ -10,8 +11,7 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.lang.reflect.Modifier;
 
 /**
  * site.zido.core.utils
@@ -21,30 +21,81 @@ import java.text.SimpleDateFormat;
 public class ReflectionUtils {
     private static Logger logger = LogManager.getLogger(ReflectionUtils.class);
 
-    public static Constructor<?> getConstructor(Class<?> classzz) {
-        Constructor<?>[] constructors = classzz.getConstructors();
-        if (constructors == null || constructors.length != 1)
-            throw new BeanHaveOneConstructorException();
-
-        return constructors[0];
+    /**
+     * 获取类构造器
+     *
+     * @param classzz 类
+     * @return 构造器
+     */
+    public static <T> Constructor<T> getConstructor(Class<T> classzz) {
+        try {
+            return classzz.getDeclaredConstructor();
+        } catch (NoSuchMethodException e) {
+            throw new BeanHaveOneConstructorException(classzz);
+        }
     }
 
-    public static Object newInstance(Class<?> classzz, Object... params) {
-
-        try {
-            Constructor<?> constructor = getConstructor(classzz);
-            if (params == null || params.length == 0)
-                return constructor.newInstance();
-            else
-                return constructor.newInstance(params);
-        } catch (InstantiationException e) {
-            logger.error(classzz.getName() + "必须为普通类");
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException("需要提供唯一的无参构造函数");
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
+    /**
+     * 实例化类，通过默认无参方法(只能是公有构造方法)
+     *
+     * @param clazz 类
+     * @param <T>   类型
+     * @return 实例
+     */
+    public static <T> T newInstance(Class<T> clazz) {
+        Assert.notNull(clazz, "实例化时提供的类不能为空");
+        if (clazz.isInterface()) {
+            throw new BeanInstantiationException(clazz, "给定的类为接口");
         }
-        return null;
+        try {
+            return clazz.newInstance();
+        } catch (InstantiationException ex) {
+            throw new BeanInstantiationException(clazz, "给定的类可能是抽象类", ex);
+        } catch (IllegalAccessException ex) {
+            throw new BeanInstantiationException(clazz, "给定的类的构造器可能是私有的", ex);
+        }
+    }
+
+    /**
+     * 实例化类，通过默认无参方法(包括私有构造方法)
+     *
+     * @param clazz 类
+     * @param <T>   类型
+     * @return 实例
+     */
+    public static <T> T instantiateClass(Class<T> clazz) {
+        Assert.notNull(clazz, "提供的类不能为空");
+        if (clazz.isInterface()) {
+            throw new BeanInstantiationException(clazz, "给定的类为接口");
+        }
+        try {
+            return instantiateClass(clazz.getDeclaredConstructor());
+        } catch (NoSuchMethodException ex) {
+            throw new BeanInstantiationException(clazz, "未找到默认构造器", ex);
+        }
+    }
+
+    public static <T> T instantiateClass(Constructor<T> ctor, Object... params) {
+        Assert.notNull(ctor, "构造器不能为空");
+        try {
+            ReflectionUtils.makeAccessible(ctor);
+            return ctor.newInstance(params);
+        } catch (InstantiationException ex) {
+            throw new BeanInstantiationException(ctor, "提供的类为抽象类、接口?", ex);
+        } catch (IllegalAccessException ex) {
+            throw new BeanInstantiationException(ctor, "构造器是否有访问权限?", ex);
+        } catch (IllegalArgumentException ex) {
+            throw new BeanInstantiationException(ctor, "构造器参数错误", ex);
+        } catch (InvocationTargetException ex) {
+            throw new BeanInstantiationException(ctor, "构造器抛出异常", ex.getTargetException());
+        }
+    }
+
+    public static void makeAccessible(Constructor<?> ctor) {
+        if ((!Modifier.isPublic(ctor.getModifiers()) ||
+                !Modifier.isPublic(ctor.getDeclaringClass().getModifiers())) && !ctor.isAccessible()) {
+            ctor.setAccessible(true);
+        }
     }
 
     public static Object execute(Method method, Object target, Object... params) {

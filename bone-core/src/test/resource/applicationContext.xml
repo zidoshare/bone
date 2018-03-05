@@ -2,21 +2,21 @@
 <beans>
 
     <bean id="three" class="site.zido.test.xml.Three">
-        <property name="one" ref="one"/>
-        <property name="two" ref="two"/>
+        <defProperty name="one" ref="one"/>
+        <defProperty name="two" ref="two"/>
     </bean>
 
     <bean id="two" class="site.zido.test.xml.Two">
-        <property name="render" value="打人"/>
-        <property name="one" ref="one"/>
+        <defProperty name="render" value="打人"/>
+        <defProperty name="one" ref="one"/>
     </bean>
 
     <bean id="one" class="site.zido.test.xml.One">
         <construction>
-            <property type="java.lang.Integer" value="123"/>
+            <defProperty type="java.lang.Integer" value="123"/>
         </construction>
-        <property name="name" value="zhangsan"/>
-        <property name="age" value="1"/>
-        <!--<property name="two" ref="two"/> 这里加上会有循环依赖问题（已解决，正常报错）-->
+        <defProperty name="name" value="zhangsan"/>
+        <defProperty name="age" value="1"/>
+        <!--<defProperty name="two" ref="two"/> 这里加上会有循环依赖问题（已解决，正常报错）-->
     </bean>
 </beans>

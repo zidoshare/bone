@@ -7,11 +7,11 @@ import java.lang.reflect.Method;
  *
  * @author zido
  */
-public class RequestHandler {
+public class RequestAction {
     private Class<?> controllerClass;
     private Method actionMethod;
 
-    public RequestHandler(Class<?> controllerClass, Method actionMethod) {
+    public RequestAction(Class<?> controllerClass, Method actionMethod) {
         this.controllerClass = controllerClass;
         this.actionMethod = actionMethod;
     }

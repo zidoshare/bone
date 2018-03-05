@@ -11,12 +11,12 @@ import java.util.List;
  */
 public class Definition {
     private String id = "";
-    private String className;
-    private List<Property> properties = new ArrayList<>();
+    private Class<?> type;
+    private List<DefProperty> properties = new ArrayList<>();
     /**
      * 存储类的构造方法，以代理生成bin
      */
-    private BeanConstruction construction;
+    private DefConstruction construction;
 
     private List<DelayMethod> delayMethods = new ArrayList<>(3);
 
@@ -24,9 +24,8 @@ public class Definition {
 
     }
 
-    public Definition(String id, String className, List<Property> properties, BeanConstruction construction) {
+    public Definition(String id, List<DefProperty> properties, DefConstruction construction) {
         this.id = id;
-        this.className = className;
         this.properties = properties;
         this.construction = construction;
     }
@@ -39,38 +38,20 @@ public class Definition {
         this.id = id;
     }
 
-    public String getClassName() {
-        return className;
-    }
-
-    public void setClassName(String className) {
-        this.className = className;
-    }
-
-    public List<Property> getProperties() {
+    public List<DefProperty> getProperties() {
         return properties;
     }
 
-    public void setProperties(List<Property> properties) {
+    public void setProperties(List<DefProperty> properties) {
         this.properties = properties;
     }
 
-    public BeanConstruction getConstruction() {
+    public DefConstruction getConstruction() {
         return construction;
     }
 
-    public void setConstruction(BeanConstruction construction) {
+    public void setConstruction(DefConstruction construction) {
         this.construction = construction;
-    }
-
-    @Override
-    public String toString() {
-        return "Definition{" +
-                "id='" + id + '\'' +
-                ", className='" + className + '\'' +
-                ", properties=" + properties +
-                ", construction=" + construction +
-                '}';
     }
 
     public List<DelayMethod> getDelayMethods() {
@@ -83,5 +64,34 @@ public class Definition {
 
     public void addDelayMethod(DelayMethod delayMethod) {
         delayMethods.add(delayMethod);
+    }
+
+    public Class<?> getType() {
+        return type;
+    }
+
+    public void setType(Class<?> clazz) {
+        this.type = clazz;
+    }
+
+    @Override
+    public String toString() {
+        return "Definition{" +
+                "id='" + id + '\'' +
+                ", type=" + type +
+                ", properties=" + properties +
+                ", construction=" + construction +
+                ", delayMethods=" + delayMethods +
+                '}';
+    }
+
+    public boolean inProperties(DefProperty[] other) {
+        for (DefProperty property : other) {
+            String ref = property.getRef();
+            Class<?> type = property.getType();
+            if (ref.equals(id) && type == this.type)
+                return true;
+        }
+        return false;
     }
 }

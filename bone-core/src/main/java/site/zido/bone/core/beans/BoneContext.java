@@ -1,5 +1,6 @@
 package site.zido.bone.core.beans;
 
+import site.zido.bone.core.exception.beans.ExistsBeanException;
 import site.zido.bone.core.utils.ValiDateUtils;
 
 import java.util.Collection;
@@ -14,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class BoneContext implements BeanFactory, BeanProvider {
     private static BoneContext boneContext = new BoneContext();
-    private Map<Class<?>, Map<String, Object>> ioc = new ConcurrentHashMap<>();
+    private Map<Class<?>, Map<String, Object>> container = new ConcurrentHashMap<>();
 
     private BoneContext() {
     }
@@ -35,7 +36,7 @@ public class BoneContext implements BeanFactory, BeanProvider {
         }
         Map<String, Object> classMap = null;
         if (requireType == null) {
-            Collection<Map<String, Object>> values = ioc.values();
+            Collection<Map<String, Object>> values = container.values();
             for (Map<String, Object> value : values) {
                 if (value.containsKey(id)) {
                     classMap = value;
@@ -44,7 +45,7 @@ public class BoneContext implements BeanFactory, BeanProvider {
                 classMap = null;
             }
         } else {
-            classMap = ioc.get(requireType);
+            classMap = container.get(requireType);
         }
         if (classMap == null) {
             return null;
@@ -70,16 +71,16 @@ public class BoneContext implements BeanFactory, BeanProvider {
             id = "";
         }
         Map<String, Object> values;
-        if (ioc.get(requireType) == null) {
+        if (container.get(requireType) == null) {
             values = new ConcurrentHashMap<>();
         } else {
-            values = ioc.get(requireType);
+            values = container.get(requireType);
         }
         if (values.containsKey(id)) {
-            throw new ExistsBeanException();
+            throw new ExistsBeanException(id, o);
         }
         values.put(id, o);
-        ioc.put(requireType, values);
+        container.put(requireType, values);
     }
 
     @Override

@@ -10,8 +10,9 @@ import java.lang.reflect.Method;
  * @author zido
  */
 public class DelayMethod {
-    private String[] paramNames;
-    private Class<?>[] paramTypes;
+
+    private DefProperty[] properties;
+
     private Method method;
     private Object target;
 
@@ -19,13 +20,6 @@ public class DelayMethod {
         return ReflectionUtils.execute(method, target, params);
     }
 
-    public String[] getParamNames() {
-        return paramNames;
-    }
-
-    public void setParamNames(String[] paramNames) {
-        this.paramNames = paramNames;
-    }
 
     public Method getMethod() {
         return method;
@@ -43,11 +37,11 @@ public class DelayMethod {
         this.target = target;
     }
 
-    public Class<?>[] getParamTypes() {
-        return paramTypes;
+    public DefProperty[] getProperties() {
+        return properties;
     }
 
-    public void setParamTypes(Class<?>[] paramTypes) {
-        this.paramTypes = paramTypes;
+    public void setProperties(DefProperty[] properties) {
+        this.properties = properties;
     }
 }

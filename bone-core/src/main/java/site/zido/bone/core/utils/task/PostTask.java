@@ -1,4 +1,4 @@
-package site.zido.bone.core.beans;
+package site.zido.bone.core.utils.task;
 
 /**
  * 单个任务
