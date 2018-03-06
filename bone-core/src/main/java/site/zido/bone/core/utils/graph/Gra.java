@@ -10,14 +10,9 @@ import java.util.Iterator;
 public interface Gra<T> extends Iterable<T> {
     class IdCreator {
         private static int nodeIdStart = 0;
-        private static int arcIdStart = 0;
 
         static int getNodeId() {
             return ++nodeIdStart;
-        }
-
-        static int getArcId() {
-            return ++arcIdStart;
         }
     }
 
@@ -65,7 +60,13 @@ public interface Gra<T> extends Iterable<T> {
     /**
      * 得到当前图的迭代器，用于对图进行遍历
      *
-     * @param root 从哪个点开始遍历
+     * @param rootIndex 从哪个点开始遍历
      */
-    public Iterator<T> iterator(T root);
+    Iterator<T> iterator(int rootIndex);
+
+    /**
+     * 获取顶点数量
+     * @return 顶点数量
+     */
+    int size();
 }

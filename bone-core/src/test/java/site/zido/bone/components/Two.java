@@ -1,4 +1,4 @@
-package site.zido.test.anpack;
+package site.zido.bone.components;
 
 public class Two {
     private String render;

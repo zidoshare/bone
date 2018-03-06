@@ -1,4 +1,4 @@
-package site.zido.test.components;
+package site.zido.bone.components;
 
 import site.zido.bone.core.beans.annotation.Component;
 

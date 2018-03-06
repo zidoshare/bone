@@ -1,4 +1,4 @@
-package site.zido.test.xml;
+package site.zido.bone.xml;
 
 public class Two {
     private String render;

@@ -1,14 +1,19 @@
-package site.zido.test.components;
+package site.zido.bone.anpack;
 
 import site.zido.bone.core.beans.annotation.Bean;
 import site.zido.bone.core.beans.annotation.Beans;
 
+/**
+ * site.zido.test.anpack
+ *
+ * @author zido
+ */
 @Beans
-public class CommonConfiguration {
+public class OneConfigurations {
     @Bean
     public One getOne(Two two) {
         One one = new One();
-        one.setAge(26);
+        one.setAge(25);
         one.setName("zido");
         one.setTwo(two);
         return one;
@@ -17,7 +22,7 @@ public class CommonConfiguration {
     @Bean
     public Two getTwo() {
         Two two = new Two();
-        two.setRender("two");
+        two.setRender("render");
         return two;
     }
 

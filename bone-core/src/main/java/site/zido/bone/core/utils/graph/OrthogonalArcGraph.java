@@ -1,9 +1,9 @@
 package site.zido.bone.core.utils.graph;
 
-import java.util.Iterator;
+import java.util.*;
 
 /**
- * 有向图的十字链表实现
+ * 有向图的十字链表实现(正向逆向都具备)
  *
  * @author zido
  */
@@ -27,15 +27,32 @@ public class OrthogonalArcGraph<T> extends ArcGraph<T> {
     }
 
     /**
-     * 添加弧 //TODO 等待完成
+     * 添加弧
      *
      * @param tail 弧尾编号
      * @param head 弧头编号
      */
     @Override
     public void connect(int tail, int head) {
-        Arc arc = new OrthogonalArc(tail, head);
-        addArc(arc);
+        OrthogonalNode<T> tailNode = getNode(tail);
+        if (tailNode == null) {
+            throw new NoSuchNodeException(tail);
+        }
+        OrthogonalNode<T> headNode = getNode(head);
+        if (headNode == null) {
+            throw new NoSuchNodeException(head);
+        }
+
+        OrthogonalArc arc = new OrthogonalArc(tail, head);
+
+        //处理弧头顶点
+        //替代节点，完成替代
+        arc.setTailLink(tailNode.getFirstOut());
+        tailNode.setFirstOut(arc);
+
+        //处理弧尾顶点
+        arc.setHeadLink(headNode.getFirstIn());
+        headNode.setFirstIn(arc);
     }
 
     /**
@@ -46,17 +63,87 @@ public class OrthogonalArcGraph<T> extends ArcGraph<T> {
      */
     @Override
     public void disConnect(int tail, int head) {
+        OrthogonalNode<T> tailNode = getNode(tail);
+        if (tailNode == null) {
+            throw new NoSuchNodeException(tail);
+        }
+        OrthogonalNode<T> headNode = getNode(head);
+        if (headNode == null) {
+            throw new NoSuchNodeException(head);
+        }
+        throw new UnsupportedOperationException("disConnect");
+    }
 
+    /**
+     * 通过弧尾和弧头获取弧
+     *
+     * @param tail 弧尾编号
+     * @param head 弧头编号
+     * @return 弧
+     */
+    @Override
+    public OrthogonalArc get(int tail, int head) {
+        OrthogonalNode<T> node = getNode(tail);
+        OrthogonalArc out = node.getFirstOut();
+        while (out != null) {
+            if (out.getEnd() == head) {
+                return out;
+            }
+            out = out.getTailLink();
+        }
+        return null;
+    }
+
+    class OAGtr implements Iterator<T> {
+        private OrthogonalNode<T> root;
+        private boolean front;
+        private Queue<OrthogonalNode<T>> queue = new LinkedList<>();
+        private Set<OrthogonalNode<T>> visits = new LinkedHashSet<>();
+
+        public OAGtr(OrthogonalNode<T> root) {
+            this(root, true);
+        }
+
+        public OAGtr(OrthogonalNode<T> root, boolean front) {
+            this.root = root;
+            this.front = front;
+            queue.offer(root);
+        }
+
+        @Override
+        public boolean hasNext() {
+            return queue.isEmpty();
+        }
+
+        @Override
+        public T next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            OrthogonalNode<T> result = queue.poll();
+            visits.add(result);
+
+            OrthogonalArc arc = front ? result.getFirstOut() : result.getFirstIn();
+            while (arc != null) {
+                OrthogonalNode<T> node = OrthogonalArcGraph.this.getNode(front ? arc.getTailVex() : arc.getHeadVex());
+                if (visits.contains(node)) {
+                    continue;
+                }
+                queue.offer(node);
+                arc = front ? arc.getTailLink() : arc.getHeadLink();
+            }
+            return result.getData();
+        }
     }
 
     /**
      * 得到当前图的迭代器，用于对图进行遍历
      *
-     * @param root 从哪个点开始遍历
+     * @param rootIndex 从哪个点开始遍历
      */
     @Override
-    public Iterator<T> iterator(T root) {
-        return null;
+    public Iterator<T> iterator(int rootIndex) {
+        return iterator(rootIndex, true);
     }
 
     /**
@@ -66,7 +153,16 @@ public class OrthogonalArcGraph<T> extends ArcGraph<T> {
      */
     @Override
     public Iterator<T> iterator() {
-        return null;
+        return iterator(0, true);
     }
 
+    @Override
+    public Iterator<T> iterator(boolean front) {
+        return iterator(0, front);
+    }
+
+    @Override
+    public Iterator<T> iterator(int rootIndex, boolean front) {
+        return new OAGtr(getNode(rootIndex), front);
+    }
 }

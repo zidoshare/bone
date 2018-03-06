@@ -1,15 +1,18 @@
 package site.zido.bone.core.utils.graph;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 /**
- * 图的顶点
+ * 图的顶点抽象
  *
  * @author zido
  */
-public abstract class Node<T> {
+public abstract class Node<T> implements Iterable<Edge> {
     private T data;
     private int index;
 
-    public Node(T data){
+    public Node(T data) {
         this.data = data;
     }
 

@@ -1,4 +1,4 @@
-package site.zido.test.components;
+package site.zido.bone.xml;
 
 public class Three {
     private One one;

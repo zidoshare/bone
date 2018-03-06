@@ -1,4 +1,4 @@
-package site.zido.test.components;
+package site.zido.bone.components;
 
 public class One {
     private String name;

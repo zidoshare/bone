@@ -6,26 +6,26 @@ package site.zido.bone.core.utils.graph;
  * @author zido
  */
 public class OrthogonalArc extends Arc {
-    private int headLink;
-    private int tailLink;
+    private OrthogonalArc headLink;
+    private OrthogonalArc tailLink;
 
     public OrthogonalArc(int tailVex, int headVex) {
         super(tailVex, headVex);
     }
 
-    public int getHeadLink() {
+    public OrthogonalArc getHeadLink() {
         return headLink;
     }
 
-    public void setHeadLink(int headLink) {
+    public void setHeadLink(OrthogonalArc headLink) {
         this.headLink = headLink;
     }
 
-    public int getTailLink() {
+    public OrthogonalArc getTailLink() {
         return tailLink;
     }
 
-    public void setTailLink(int tailLink) {
+    public void setTailLink(OrthogonalArc tailLink) {
         this.tailLink = tailLink;
     }
 }

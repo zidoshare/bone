@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans>
 
-    <bean id="three" class="site.zido.test.xml.Three">
+    <bean id="three" class="site.zido.bone.xml.Three">
         <defProperty name="one" ref="one"/>
         <defProperty name="two" ref="two"/>
     </bean>
 
-    <bean id="two" class="site.zido.test.xml.Two">
+    <bean id="two" class="site.zido.bone.xml.Two">
         <defProperty name="render" value="打人"/>
         <defProperty name="one" ref="one"/>
     </bean>
 
-    <bean id="one" class="site.zido.test.xml.One">
+    <bean id="one" class="site.zido.bone.xml.One">
         <construction>
             <defProperty type="java.lang.Integer" value="123"/>
         </construction>

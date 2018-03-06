@@ -1,4 +1,4 @@
-package site.zido.test;
+package site.zido.bone;
 
 import org.junit.Assert;
 import org.junit.Test;

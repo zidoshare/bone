@@ -1,4 +1,4 @@
-package site.zido.test.anpack;
+package site.zido.bone.xml;
 
 public class One {
     private String name;
