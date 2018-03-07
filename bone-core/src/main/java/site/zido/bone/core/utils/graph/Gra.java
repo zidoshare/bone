@@ -9,9 +9,9 @@ import java.util.Iterator;
  */
 public interface Gra<T> extends Iterable<T> {
     class IdCreator {
-        private static int nodeIdStart = 0;
+        private int nodeIdStart = 0;
 
-        static int getNodeId() {
+        int getNodeId() {
             return ++nodeIdStart;
         }
     }

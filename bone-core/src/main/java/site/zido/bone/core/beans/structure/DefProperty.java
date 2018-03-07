@@ -9,8 +9,9 @@ package site.zido.bone.core.beans.structure;
 public class DefProperty {
     private String name;
     private String value;
-    private String ref;
+    private String ref = "";
     private Class<?> type;
+    private Object target;
 
     public String getName() {
         return name;
@@ -39,9 +40,8 @@ public class DefProperty {
     @Override
     public String toString() {
         return "DefProperty{" +
-                "name='" + name + '\'' +
-                ", value='" + value + '\'' +
-                ", ref='" + ref + '\'' +
+                "ref='" + ref + '\'' +
+                ", type=" + type +
                 '}';
     }
 
@@ -51,5 +51,13 @@ public class DefProperty {
 
     public void setType(Class<?> type) {
         this.type = type;
+    }
+
+    public Object getTarget() {
+        return target;
+    }
+
+    public void setTarget(Object target) {
+        this.target = target;
     }
 }

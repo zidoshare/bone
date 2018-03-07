@@ -13,10 +13,11 @@ import site.zido.bone.core.utils.ValiDateUtils;
  */
 public abstract class PostTask {
 
-    private DefProperty[] properties;
+    private DefProperty[] properties = new DefProperty[0];
     private Definition definition;
     private DelayMethod delayMethod;
     private int tailCounter = 0;
+    private DefProperty property;
 
     /**
      * 真正执行的内容
@@ -78,10 +79,15 @@ public abstract class PostTask {
     public String toString() {
         return definition != null ?
                 String.format("生成bean[id:%s,type:%s]", getDefinition().getId(), getDefinition().getType().getName()) :
-                String.format("执行延迟方法%s", delayMethod);
+                delayMethod != null?String.format("执行延迟方法%s", delayMethod)
+                        :String.format("执行延迟注入属性%s", property);
     }
 
     public void produce(DelayMethod delayMethod) {
         this.delayMethod = delayMethod;
+    }
+
+    public void produce(DefProperty property) {
+        this.property = property;
     }
 }
