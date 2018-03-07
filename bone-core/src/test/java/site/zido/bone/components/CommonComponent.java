@@ -13,6 +13,7 @@ public class CommonComponent {
     @Inject
     private One otherOne;
 
+    @Inject
     public CommonComponent(One one) {
         this.one = one;
     }

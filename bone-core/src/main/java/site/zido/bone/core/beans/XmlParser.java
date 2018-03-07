@@ -37,8 +37,6 @@ public class XmlParser extends AbsBeanParser {
     private List<Definition> getConfig(String path) {
         Assert.hasLength(path, "xml扫描路径不能为空");
         List<Definition> configMap = new ArrayList<>(5);
-        //记录ref，解决循环依赖的问题
-        Map<String, String> refBuf = new HashMap<>();
         Document doc;
 
         SAXReader reader = new SAXReader();
@@ -57,6 +55,7 @@ public class XmlParser extends AbsBeanParser {
         if (list != null) {
             for (Element beanElement : list) {
                 Definition definition = new Definition();
+                definition.isClass(true);
 
                 String id = beanElement.attributeValue("id");
 
@@ -72,21 +71,19 @@ public class XmlParser extends AbsBeanParser {
 
                 List<Element> proList = beanElement.elements("property");
                 if (proList != null) {
+                    DefProperty[] properties = new DefProperty[proList.size()];
+                    int i = 0;
                     for (Element proElement : proList) {
                         DefProperty prop = new DefProperty();
                         String propName = proElement.attributeValue("name");
                         String propValue = proElement.attributeValue("value");
                         String propRef = proElement.attributeValue("ref");
-                        if (propRef != null && definition.getId().equals(refBuf.get(propRef))) {
-                            throw new RuntimeException("查找到xml文件中含有循环依赖 [" + propRef + "] <-> [" + refBuf.get(propRef) + "]");
-                        } else if (propRef != null)
-                            refBuf.put(definition.getId(), propRef);
                         prop.setName(propName);
                         prop.setValue(propValue);
                         prop.setRef(propRef);
-
-                        definition.getProperties().add(prop);
+                        properties[i++] = prop;
                     }
+                    definition.setProperties(properties);
                 }
                 if (configMap.stream().anyMatch(def -> null != id && !"".equals(id) && id.equals(def.getId()))) {
                     throw new RuntimeException("bean节点id重复:" + id);

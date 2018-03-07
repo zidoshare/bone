@@ -27,7 +27,7 @@ public class OrthogonalNode<T> extends ArcNode<T> {
 
         @Override
         public boolean hasNext() {
-            return front ? current.getTailLink() == null : current.getHeadLink() == null;
+            return front ? current.getTailLink() != null : current.getHeadLink() != null;
         }
 
         @Override

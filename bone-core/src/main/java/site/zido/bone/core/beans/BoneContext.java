@@ -77,7 +77,7 @@ public class BoneContext implements BeanFactory, BeanProvider {
             values = container.get(requireType);
         }
         if (values.containsKey(id)) {
-            throw new ExistsBeanException(id, o);
+            throw new ExistsBeanException(id, values.get(id));
         }
         values.put(id, o);
         container.put(requireType, values);

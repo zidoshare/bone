@@ -43,6 +43,10 @@ public class OrthogonalArcGraph<T> extends ArcGraph<T> {
             throw new NoSuchNodeException(head);
         }
 
+        if (get(tail, head) != null) {
+            return;
+        }
+
         OrthogonalArc arc = new OrthogonalArc(tail, head);
 
         //处理弧头顶点
@@ -125,7 +129,7 @@ public class OrthogonalArcGraph<T> extends ArcGraph<T> {
 
             OrthogonalArc arc = front ? result.getFirstOut() : result.getFirstIn();
             while (arc != null) {
-                OrthogonalNode<T> node = OrthogonalArcGraph.this.getNode(front ? arc.getTailVex() : arc.getHeadVex());
+                OrthogonalNode<T> node = OrthogonalArcGraph.this.getNode(front ? arc.getHeadVex() : arc.getTailVex());
                 if (visits.contains(node)) {
                     continue;
                 }

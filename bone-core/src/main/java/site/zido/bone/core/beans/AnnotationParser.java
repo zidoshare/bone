@@ -73,6 +73,7 @@ public class AnnotationParser extends AbsBeanParser {
         Definition definition = new Definition();
         definition.setId(id);
         definition.setType(classzz);
+        definition.isClass(true);
         //解析构造器
         Constructor<?> constructor = ReflectionUtils.getOnlyConstructor(classzz);
         DefConstruction defConstruction = new DefConstruction(constructor);
@@ -123,7 +124,8 @@ public class AnnotationParser extends AbsBeanParser {
                 properties.add(defProperty);
             }
         }
-        definition.setProperties(properties);
+        DefProperty[] defProperties = new DefProperty[properties.size()];
+        definition.setProperties(properties.toArray(defProperties));
         return definition;
     }
 
@@ -167,6 +169,7 @@ public class AnnotationParser extends AbsBeanParser {
         for (Method method : methods) {
             if (method.isAnnotationPresent(Bean.class)) {
                 Definition definition = new Definition();
+                definition.isClass(false);
                 Bean annotation = method.getAnnotation(Bean.class);
                 String id = annotation.id();
                 Class<?> returnType = method.getReturnType();
@@ -177,6 +180,7 @@ public class AnnotationParser extends AbsBeanParser {
                 delayMethod.setTarget(obj);
                 definition.addDelayMethod(delayMethod);
                 definition.setId(id);
+                definition.setType(method.getReturnType());
                 list.add(definition);
             }
         }

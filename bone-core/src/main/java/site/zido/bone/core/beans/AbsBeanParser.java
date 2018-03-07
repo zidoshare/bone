@@ -5,11 +5,14 @@ import site.zido.bone.core.beans.structure.DefProperty;
 import site.zido.bone.core.beans.structure.Definition;
 import site.zido.bone.core.beans.structure.DelayMethod;
 import site.zido.bone.core.exception.beans.FatalBeansException;
+import site.zido.bone.core.utils.CollectionUtils;
 import site.zido.bone.core.utils.ReflectionUtils;
 import site.zido.bone.core.utils.graph.Graph;
 import site.zido.bone.core.utils.graph.GraphNode;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -21,7 +24,7 @@ import java.util.List;
  */
 public abstract class AbsBeanParser implements IBeanParser {
 
-    private PostGraph postGraph = PostGraph.newGraph();
+    private PostGraph postGraph = new PostGraph();
 
     protected abstract List<Definition> getConfig();
 
@@ -32,32 +35,30 @@ public abstract class AbsBeanParser implements IBeanParser {
             for (Definition definition : config) {
                 registerBean(definition);
             }
-            if (!PostGraph.execute(postGraph)) {
-                List<GraphNode> list = postGraph.getList();
-                StringBuilder sb = new StringBuilder("Bean实例化异常，请检查依赖是否被注入或包含循环依赖，以下为执行集合：\n");
-                for (GraphNode postTask : list) {
-                    String idStr = "";
-                    String beanClass;
-                    StringBuilder needStr = new StringBuilder();
-                    if (postTask instanceof BeanExecuteTask) {
-                        BeanExecuteTask task = (BeanExecuteTask) postTask;
-                        Definition definition = task.getDefinition();
-                        if (!"".equals(definition.getId())) {
-                            idStr = " 实例[id:" + definition.getId() + "] ";
-                        }
-                        beanClass = " 实例[类:" + definition.getType().getName() + "] ";
-                        DefProperty[] properties = task.getProperties();
-                        if (properties.length > 0) {
-                            needStr.append("需要的bean为：");
-                        }
-                        for (DefProperty property : properties) {
-                            needStr.append("[").append(property.getRef()).append("|").append(property.getType().getName()).append("]");
-                        }
-                        sb.append(idStr).append(beanClass).append(needStr).append("\n");
-                    }
-                }
-                throw new FatalBeansException(sb.toString());
-            }
+            postGraph.execute();
+//            if (!) {
+//                List<PostTask> list = postGraph.getList();
+//                StringBuilder sb = new StringBuilder("Bean实例化异常，请检查依赖是否被注入或包含循环依赖，以下为执行集合：\n");
+//                for (PostTask task : list) {
+//                    String idStr = "";
+//                    String beanClass;
+//                    StringBuilder needStr = new StringBuilder();
+//                    Definition definition = task.getDefinition();
+//                    if (!"".equals(definition.getId())) {
+//                        idStr = " 实例[id:" + definition.getId() + "] ";
+//                    }
+//                    beanClass = " 实例[类:" + definition.getType().getName() + "] ";
+//                    DefProperty[] properties = task.getProperties();
+//                    if (properties.length > 0) {
+//                        needStr.append("需要的bean为：");
+//                    }
+//                    for (DefProperty property : properties) {
+//                        needStr.append("[").append(property.getRef()).append("|").append(property.getType().getName()).append("]");
+//                    }
+//                    sb.append(idStr).append(beanClass).append(needStr).append("\n");
+//                }
+//                throw new FatalBeansException("Bean实例化异常");
+//            }
         }
     }
 
@@ -70,26 +71,40 @@ public abstract class AbsBeanParser implements IBeanParser {
      * 通过Bean的定义来生成实例
      *
      * @param definition Bean描述
-     * @return 实例
      */
     private void registerBean(Definition definition) {
         final List<DelayMethod> delayMethods = definition.getDelayMethods();
 
-        Class<?> type = definition.getType();
-        if (type != null) {
+        if (definition.isClass()) {
+            Class<?> type = definition.getType();
             DefConstruction cons = definition.getConstruction();
             if (cons == null) {
-                Object object = ReflectionUtils.newInstance(type);
-                injectFieldToObject(definition, object);
-                //通过构造方法生成的类，需要给类中的延迟执行方法设置目标类
-                for (DelayMethod delayMethod : delayMethods) {
-                    delayMethod.setTarget(object);
-                }
-                BoneContext.getInstance().register(definition.getId(), object);
-            } else {
-                postGraph.addChild(new BeanExecuteTask() {
+                postGraph.addChild(new PostTask() {
                     @Override
-                    public void run(Object[] params) {
+                    public void execute(Object[] params) {
+                        Object object = ReflectionUtils.newInstance(type);
+                        injectFieldToObject(definition, object);
+                        //通过构造方法生成的类，需要给类中的延迟执行方法设置目标类
+                        for (DelayMethod delayMethod : delayMethods) {
+                            delayMethod.setTarget(object);
+                        }
+                        BoneContext.getInstance().register(definition.getId(), object);
+                    }
+                }).need(definition.getProperties()).produce(definition);
+            } else {
+                DefProperty[] arr1 = definition.getProperties();
+                DefProperty[] arr2 = cons.getProperties();
+                DefProperty[] properties = new DefProperty[arr1.length + arr2.length];
+                for (int i = 0; i < properties.length; i++) {
+                    if (i >= arr1.length) {
+                        properties[i] = arr2[i - arr2.length];
+                    } else {
+                        properties[i] = arr1[i];
+                    }
+                }
+                postGraph.addChild(new PostTask() {
+                    @Override
+                    public void execute(Object[] params) {
                         Object object = ReflectionUtils.instantiateClass(cons.getConstructor(), params);
                         injectFieldToObject(definition, object);
                         //通过构造方法生成的类，需要给类中的延迟执行方法设置目标类
@@ -98,15 +113,15 @@ public abstract class AbsBeanParser implements IBeanParser {
                         }
                         BoneContext.getInstance().register(definition.getId(), object);
                     }
-                }.need(cons.getProperties()).produce(definition));
+                }).need(properties).produce(definition);
             }
         }
 
         if (delayMethods.size() > 0) {
             for (final DelayMethod delayMethod : delayMethods) {
-                postGraph.addChild(new BeanExecuteTask() {
+                PostGraph.PostProduce need = postGraph.addChild(new PostTask() {
                     @Override
-                    public void run(Object[] params) {
+                    public void execute(Object[] params) {
                         Object target = delayMethod.getTarget();
                         if (target != null) {
                             Object object = delayMethod.execute(params);
@@ -119,14 +134,19 @@ public abstract class AbsBeanParser implements IBeanParser {
                                 }
 
                                 @Override
-                                public void run(Object[] params) {
+                                public void execute(Object[] params) {
                                     Object object = delayMethod.execute(params);
                                     BoneContext.getInstance().register(definition.getId(), object);
                                 }
-                            }.need(this).produce(definition));
+                            }).need(this.getProperties()).produce(definition);
                         }
                     }
-                }.need(delayMethod.getProperties()).produce(definition));
+                }).need(delayMethod.getProperties());
+                if (definition.isClass()) {
+                    need.produce(delayMethod);
+                } else {
+                    need.produce(definition);
+                }
             }
         }
     }
@@ -136,12 +156,12 @@ public abstract class AbsBeanParser implements IBeanParser {
             for (DefProperty p : definition.getProperties()) {
                 Method method = ReflectionUtils.getSetterMethod(object, p.getName());
                 if (p.getValue() == null) {
-                    postGraph.addChild(new BeanExecuteTask() {
+                    postGraph.addChild(new PostTask() {
                         @Override
-                        public void run(Object[] params) {
+                        public void execute(Object[] params) {
                             ReflectionUtils.setField(object, method, params[0]);
                         }
-                    }.need(new DefProperty[]{p}));
+                    }).need(new DefProperty[]{p});
                 } else {
                     ReflectionUtils.setField(object, method, p.getValue());
                 }

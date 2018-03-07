@@ -1,6 +1,7 @@
 package site.zido.bone.core.beans.structure;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -12,7 +13,7 @@ import java.util.List;
 public class Definition {
     private String id = "";
     private Class<?> type;
-    private List<DefProperty> properties = new ArrayList<>();
+    private DefProperty[] properties = new DefProperty[0];
     /**
      * 存储类的构造方法，以代理生成bin
      */
@@ -20,11 +21,13 @@ public class Definition {
 
     private List<DelayMethod> delayMethods = new ArrayList<>(3);
 
+    private boolean isClass = false;
+
     public Definition() {
 
     }
 
-    public Definition(String id, List<DefProperty> properties, DefConstruction construction) {
+    public Definition(String id, DefProperty[] properties, DefConstruction construction) {
         this.id = id;
         this.properties = properties;
         this.construction = construction;
@@ -38,11 +41,11 @@ public class Definition {
         this.id = id;
     }
 
-    public List<DefProperty> getProperties() {
+    public DefProperty[] getProperties() {
         return properties;
     }
 
-    public void setProperties(List<DefProperty> properties) {
+    public void setProperties(DefProperty[] properties) {
         this.properties = properties;
     }
 
@@ -79,7 +82,7 @@ public class Definition {
         return "Definition{" +
                 "id='" + id + '\'' +
                 ", type=" + type +
-                ", properties=" + properties +
+                ", properties=" + Arrays.toString(properties) +
                 ", construction=" + construction +
                 ", delayMethods=" + delayMethods +
                 '}';
@@ -93,5 +96,13 @@ public class Definition {
                 return true;
         }
         return false;
+    }
+
+    public boolean isClass() {
+        return isClass;
+    }
+
+    public void isClass(boolean aClass) {
+        isClass = aClass;
     }
 }

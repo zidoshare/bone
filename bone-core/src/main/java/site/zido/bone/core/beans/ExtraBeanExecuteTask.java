@@ -1,10 +1,10 @@
 package site.zido.bone.core.beans;
 
-public abstract class ExtraBeanExecuteTask extends BeanExecuteTask {
+public abstract class ExtraBeanExecuteTask extends PostTask {
     public abstract boolean check();
 
     @Override
-    public boolean run() {
+    public final boolean run() {
         return check() && super.run();
     }
 

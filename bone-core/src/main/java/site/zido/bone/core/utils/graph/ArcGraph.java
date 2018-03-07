@@ -47,14 +47,6 @@ public abstract class ArcGraph<T> implements Gra<T> {
         return nodeId;
     }
 
-    private String createKey(Arc arc) {
-        return arc.getTailVex() + "-" + arc.getHeadVex();
-    }
-
-    private String createKey(int tail, int head) {
-        return tail + "-" + head;
-    }
-
     /**
      * 通过编号获取顶点
      *

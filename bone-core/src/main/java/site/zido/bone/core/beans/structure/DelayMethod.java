@@ -44,4 +44,9 @@ public class DelayMethod {
     public void setProperties(DefProperty[] properties) {
         this.properties = properties;
     }
+
+    @Override
+    public String toString() {
+        return method.getName();
+    }
 }
