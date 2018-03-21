@@ -27,16 +27,17 @@ public class OrthogonalNode<T> extends ArcNode<T> {
 
         @Override
         public boolean hasNext() {
-            return front ? current.getTailLink() != null : current.getHeadLink() != null;
+            return current != null;
         }
 
         @Override
         public Edge next() {
-            current = front ? current.getTailLink() : current.getHeadLink();
-            if (current == null) {
+            OrthogonalArc result = current;
+            if (result == null) {
                 throw new NoSuchElementException();
             }
-            return current;
+            current = front ? current.getTailLink() : current.getHeadLink();
+            return result;
         }
     }
 

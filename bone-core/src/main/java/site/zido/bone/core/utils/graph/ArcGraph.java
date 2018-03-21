@@ -13,6 +13,7 @@ public abstract class ArcGraph<T> implements Graph<T> {
      * 顶点集合
      */
     private Map<Integer, Node<T>> nodeMap;
+    private IdCreator idCreator = new IdCreator();
 
     public ArcGraph() {
         nodeMap = new LinkedHashMap<>();
@@ -41,7 +42,7 @@ public abstract class ArcGraph<T> implements Graph<T> {
      * @return 顶点编号
      */
     protected int add(Node<T> node) {
-        int nodeId = IdCreator.getNodeId();
+        int nodeId = idCreator.getNodeId();
         node.setIndex(nodeId);
         nodeMap.put(nodeId, node);
         return nodeId;

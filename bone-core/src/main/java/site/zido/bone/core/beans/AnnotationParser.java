@@ -85,6 +85,7 @@ public class AnnotationParser extends AbsBeanParser {
             for (Parameter parameter : parameters) {
                 DefProperty defProperty = new DefProperty();
                 defProperty.setType(parameter.getType());
+                defProperty.setName(parameter.getName());
                 Inject annotation = parameter.getAnnotation(Inject.class);
                 if (annotation != null) {
                     Named named = parameter.getAnnotation(Named.class);

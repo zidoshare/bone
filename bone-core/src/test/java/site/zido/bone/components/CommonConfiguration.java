@@ -15,7 +15,7 @@ public class CommonConfiguration {
     }
 
     @Bean
-    public Two getTwo() {
+    public Two getTwo(Five five) {
         Two two = new Two();
         two.setRender("two");
         return two;
@@ -27,5 +27,15 @@ public class CommonConfiguration {
         three.setOne(one);
         three.setTwo(two);
         return three;
+    }
+
+    @Bean
+    public Four getFour(Two two) {
+        return new Four();
+    }
+
+    @Bean
+    public Five getFive() {
+        return new Five();
     }
 }

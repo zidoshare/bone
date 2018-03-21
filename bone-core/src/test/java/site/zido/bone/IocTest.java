@@ -32,7 +32,7 @@ public class IocTest {
      */
     @Test
     public void testAnnotation() {
-        IBeanParser parser = new AnnotationParser("site.zido.bone.anpack");
+        AnnotationParser parser = new AnnotationParser("site.zido.bone.anpack");
         parser.parser();
         Object one = BoneContext.getInstance().getBean(One.class);
         Object two = BoneContext.getInstance().getBean(site.zido.bone.anpack.Two.class);
