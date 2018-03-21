@@ -7,7 +7,7 @@ import java.util.*;
  *
  * @author zido
  */
-public abstract class ArcGraph<T> implements Gra<T> {
+public abstract class ArcGraph<T> implements Graph<T> {
 
     /**
      * 顶点集合

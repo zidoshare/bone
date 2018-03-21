@@ -1,89 +1,73 @@
 package site.zido.bone.core.utils.graph;
 
-import java.util.*;
+import java.util.Iterator;
 
-public class Graph implements Iterable<GraphNode> {
-    private GraphNode root;
+/**
+ * 图结构抽象
+ *
+ * @author zido
+ */
+public interface Graph<T> extends Iterable<T> {
+    class IdCreator {
+        private static int nodeIdStart = 0;
 
-    public Graph(GraphNode node) {
-        if (node.getParents().size() > 0) {
-            throw new NodeNotRootException(node);
-        }
-        root = node;
-    }
-
-    public static Graph newGraph() {
-        return new Graph(new NullGraphNode());
-    }
-
-    public GraphNode addChild(GraphNode node) {
-        addChild(root, node);
-        return node;
-    }
-
-    public GraphNode addChild(GraphNode parent, GraphNode child) {
-        parent.addNode(child);
-        return child;
-    }
-
-    public List<GraphNode> getList() {
-        List<GraphNode> result = new ArrayList<>();
-        Queue<GraphNode> queue = new LinkedList<>();
-        queue.add(root);
-        while (!queue.isEmpty()) {
-            GraphNode poll = queue.poll();
-            result.add(poll);
-            queue.addAll(poll.getNodes());
-        }
-        return result;
-    }
-
-    public boolean contains(GraphNode node) {
-        for (GraphNode graphNode : this) {
-            if (graphNode.equals(node))
-                return true;
-        }
-        return false;
-    }
-
-    @Override
-    public Iterator<GraphNode> iterator() {
-        return new Gtr(root);
-    }
-
-
-    private class Gtr implements Iterator<GraphNode> {
-        private Queue<GraphNode> list = new LinkedList<>();
-        private GraphNode currentNode;
-
-        Gtr(GraphNode root) {
-            List<GraphNode> nodes = root.getNodes();
-            list.addAll(nodes);
-        }
-
-        @Override
-        public boolean hasNext() {
-            return !list.isEmpty();
-        }
-
-        @Override
-        public GraphNode next() {
-            GraphNode node = list.poll();
-            currentNode = node;
-            list.addAll(node.getNodes());
-            return node;
-        }
-
-        @Override
-        public void remove() {
-            List<GraphNode> nodes = currentNode.getNodes();
-            list.removeAll(nodes);
-            List<GraphNode> parents = currentNode.getParents();
-            for (GraphNode parent : parents) {
-                parent.getNodes().remove(currentNode);
-            }
+        static int getNodeId() {
+            return ++nodeIdStart;
         }
     }
 
+    /**
+     * 添加顶点
+     *
+     * @param t 顶点
+     * @return 顶点编号
+     */
+    int add(T t);
 
+    /**
+     * 添加边
+     *
+     * @param edge1 边编号
+     * @param edge2 边编号
+     */
+    void connect(int edge1, int edge2);
+
+    /**
+     * 移除边
+     *
+     * @param edge1 边编号
+     * @param edge2 边编号
+     */
+    void disConnect(int edge1, int edge2);
+
+    /**
+     * 通过编号获取顶点
+     *
+     * @param index 编号
+     * @return 顶点
+     */
+    T get(int index);
+
+    /**
+     * 通过顶点获取边
+     *
+     * @param index1 顶点编号
+     * @param index2 顶点编号
+     * @return 边
+     */
+    Edge get(int index1, int index2);
+
+    /**
+     * 得到当前图的迭代器，用于对图进行遍历
+     *
+     * @param rootIndex 从哪个点开始遍历
+     */
+    Iterator<T> iterator(int rootIndex);
+
+    /**
+     * 获取顶点数量
+     *
+     * @return 顶点数量
+     */
+    int size();
 }
