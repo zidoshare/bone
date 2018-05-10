@@ -16,25 +16,41 @@ import java.util.*;
  * 任务循环执行图结构
  *
  * @author zido
- * @since 2017/30/21 下午2:30
+ * @date 2018 /05/10
+ * @since 2017 /30/21 下午2:30
  */
-public class PostGraph extends OrthogonalArcGraph<PostTask> {
+public class PostGraph extends OrthogonalArcGraph<AbstractPostTask> {
+    /**
+     * The Logger.
+     */
     private Logger logger = LogManager.getLogger("依赖解析");
 
+    /**
+     * Instantiates a new Post graph.
+     */
     public PostGraph() {
 
     }
 
-    public PostNeed addTask(PostTask child) {
+    /**
+     * Add task post need.
+     *
+     * @param child the child
+     * @return the post need
+     */
+    public PostNeed addTask(AbstractPostTask child) {
         return new PostNeed(child, add(child));
     }
 
+    /**
+     * Execute.
+     */
     public void execute() {
         checkLack();
         Stack<Integer> stack = new Stack<>();
-        Map<Integer, Node<PostTask>> nodeMap = getNodeMap();
+        Map<Integer, Node<AbstractPostTask>> nodeMap = getNodeMap();
         for (Integer id : nodeMap.keySet()) {
-            OrthogonalNode<PostTask> node = getNode(id);
+            OrthogonalNode<AbstractPostTask> node = getNode(id);
             if (node.getFirstIn() == null) {
                 stack.push(id);
             }
@@ -42,7 +58,7 @@ public class PostGraph extends OrthogonalArcGraph<PostTask> {
         Set<Integer> visits = new HashSet<>();
         while (!stack.isEmpty()) {
             Integer index = stack.peek();
-            OrthogonalNode<PostTask> currentNode = getNode(index);
+            OrthogonalNode<AbstractPostTask> currentNode = getNode(index);
             OrthogonalArc in = currentNode.getFirstIn();
             boolean isFill = true;
             //加入所有的头结点
@@ -61,8 +77,9 @@ public class PostGraph extends OrthogonalArcGraph<PostTask> {
             System.out.println(stack);
             //满足执行条件出栈，前面已经获取，这里不需要再次获取
             stack.pop();
-            if (!visits.contains(index))
+            if (!visits.contains(index)) {
                 currentNode.getData().run();
+            }
             visits.add(index);
             //获取指向的所有顶点
             OrthogonalArc arc = currentNode.getFirstOut();
@@ -77,13 +94,18 @@ public class PostGraph extends OrthogonalArcGraph<PostTask> {
         }
     }
 
+    /**
+     * Check circle.
+     *
+     * @param index the index
+     */
     public void checkCircle(int index) {
         DfsCircle dfsCircle = new DfsCircle(index);
         if (dfsCircle.hasCycle()) {
-            Stack<PostTask> circle = dfsCircle.getCircle();
+            Stack<AbstractPostTask> circle = dfsCircle.getCircle();
             StringBuilder sb = new StringBuilder("产生循环依赖\n");
             sb.append(" ...\n").append(" ↓ ").append("\n");
-            for (PostTask task : circle) {
+            for (AbstractPostTask task : circle) {
                 sb.append(task.toString()).append("\n");
                 sb.append(" ↓ ").append("\n");
             }
@@ -93,13 +115,16 @@ public class PostGraph extends OrthogonalArcGraph<PostTask> {
         }
     }
 
+    /**
+     * Check lack.
+     */
     public void checkLack() {
-        Map<Integer, Node<PostTask>> nodeMap = getNodeMap();
-        Collection<Node<PostTask>> values = nodeMap.values();
-        for (Node<PostTask> value : values) {
-            PostTask data = value.getData();
+        Map<Integer, Node<AbstractPostTask>> nodeMap = getNodeMap();
+        Collection<Node<AbstractPostTask>> values = nodeMap.values();
+        for (Node<AbstractPostTask> value : values) {
+            AbstractPostTask data = value.getData();
             DefProperty[] properties = data.getProperties();
-            List<OrthogonalNode<PostTask>> parents = new ArrayList<>();
+            List<OrthogonalNode<AbstractPostTask>> parents = new ArrayList<>();
             OrthogonalNode node = (OrthogonalNode) value;
             OrthogonalArc in = node.getFirstIn();
             while (in != null) {
@@ -113,8 +138,8 @@ public class PostGraph extends OrthogonalArcGraph<PostTask> {
                         continue;
                     }
                     boolean has = false;
-                    for (OrthogonalNode<PostTask> parent : parents) {
-                        if (LexUtils.DefEquals(property, parent.getData().getDefinition())) {
+                    for (OrthogonalNode<AbstractPostTask> parent : parents) {
+                        if (LexUtils.defEquals(property, parent.getData().getDefinition())) {
                             has = true;
                             parents.remove(parent);
                             break;
@@ -124,19 +149,43 @@ public class PostGraph extends OrthogonalArcGraph<PostTask> {
                         result.add(property);
                     }
                 }
-                if (result.size() > 0)
+                if (result.size() > 0) {
                     throw new LackRelyException(data, result);
+                }
             }
 
         }
     }
 
+    /**
+     * The type Dfs circle.
+     *
+     * @author zido
+     * @date 2018 /05/10
+     */
     class DfsCircle {
+        /**
+         * The Marked.
+         */
         private boolean[] marked;
+        /**
+         * The Edge to.
+         */
         private int[] edgeTo;
-        private Stack<PostTask> cycle;
+        /**
+         * The Cycle.
+         */
+        private Stack<AbstractPostTask> cycle;
+        /**
+         * The On stack.
+         */
         private boolean[] onStack;
 
+        /**
+         * Instantiates a new Dfs circle.
+         *
+         * @param index the index
+         */
         private DfsCircle(int index) {
             int size = size() + 1;
             onStack = new boolean[size];
@@ -145,21 +194,28 @@ public class PostGraph extends OrthogonalArcGraph<PostTask> {
             dfs(index);
         }
 
+        /**
+         * Dfs.
+         *
+         * @param v the v
+         */
         private void dfs(int v) {
             onStack[v] = true;
             marked[v] = true;
-            OrthogonalNode<PostTask> node = getNode(v);
+            OrthogonalNode<AbstractPostTask> node = getNode(v);
             for (Edge edge : node) {
                 int w = edge.getEnd();
-                if (hasCycle())
+                if (hasCycle()) {
                     return;
+                }
                 if (!marked[w]) {
                     edgeTo[w] = v;
                     dfs(w);
                 } else if (onStack[w]) {
                     cycle = new Stack<>();
-                    for (int x = v; x != w; x = edgeTo[x])
+                    for (int x = v; x != w; x = edgeTo[x]) {
                         cycle.push(getNode(x).getData());
+                    }
                     cycle.push(getNode(w).getData());
                     cycle.push(getNode(v).getData());
                 }
@@ -167,34 +223,69 @@ public class PostGraph extends OrthogonalArcGraph<PostTask> {
             onStack[v] = false;
         }
 
+        /**
+         * Has cycle boolean.
+         *
+         * @return the boolean
+         */
         private boolean hasCycle() {
             return cycle != null;
         }
 
-        Stack<PostTask> getCircle() {
+        /**
+         * Gets circle.
+         *
+         * @return the circle
+         */
+        Stack<AbstractPostTask> getCircle() {
             return cycle;
         }
 
     }
 
+    /**
+     * The type Post need.
+     *
+     * @author zido
+     * @date 2018 /05/10
+     */
     class PostNeed {
-        private PostTask task;
+        /**
+         * The Task.
+         */
+        private AbstractPostTask task;
+        /**
+         * The Current index.
+         */
         private int currentIndex;
 
-        private PostNeed(PostTask task, int currentIndex) {
+        /**
+         * Instantiates a new Post need.
+         *
+         * @param task         the task
+         * @param currentIndex the current index
+         */
+        private PostNeed(AbstractPostTask task, int currentIndex) {
             this.task = task;
             this.currentIndex = currentIndex;
         }
 
+        /**
+         * Need post need.
+         *
+         * @param properties the properties
+         * @return the post need
+         */
         public PostNeed need(DefProperty[] properties) {
-            if (properties == null)
+            if (properties == null) {
                 properties = new DefProperty[0];
+            }
             for (DefProperty property : properties) {
-                Map<Integer, Node<PostTask>> nodeMap = getNodeMap();
+                Map<Integer, Node<AbstractPostTask>> nodeMap = getNodeMap();
                 Set<Integer> ids = nodeMap.keySet();
                 for (Integer id : ids) {
                     Definition definition = nodeMap.get(id).getData().getDefinition();
-                    if (LexUtils.DefEquals(property, definition)) {
+                    if (LexUtils.defEquals(property, definition)) {
                         connect(id, currentIndex);
                         System.out.println(String.format("连接：[%d]->[%d]", id, currentIndex));
                         //当此顶点再含有一根出线时，检测是否存在环
@@ -208,16 +299,22 @@ public class PostGraph extends OrthogonalArcGraph<PostTask> {
             return this;
         }
 
+        /**
+         * Produce post need.
+         *
+         * @param definition the definition
+         * @return the post need
+         */
         public PostNeed produce(Definition definition) {
             task.produce(definition);
             System.out.println(String.format("入图：[%d]-[%s]", currentIndex, task));
-            Map<Integer, Node<PostTask>> nodeMap = getNodeMap();
+            Map<Integer, Node<AbstractPostTask>> nodeMap = getNodeMap();
             Set<Integer> ids = nodeMap.keySet();
             for (Integer id : ids) {
-                Node<PostTask> node = nodeMap.get(id);
+                Node<AbstractPostTask> node = nodeMap.get(id);
                 DefProperty[] properties = node.getData().getProperties();
                 for (DefProperty property : properties) {
-                    if (LexUtils.DefEquals(property, definition)) {
+                    if (LexUtils.defEquals(property, definition)) {
                         connect(currentIndex, id);
                         System.out.println(String.format("连接：[%d]->[%d]", currentIndex, id));
                         //当此顶点再含有一根入线时，检测是否存在环
@@ -230,19 +327,37 @@ public class PostGraph extends OrthogonalArcGraph<PostTask> {
             return this;
         }
 
+        /**
+         * Produce post need.
+         *
+         * @param delayMethod the delay method
+         * @return the post need
+         */
         public PostNeed produce(DelayMethod delayMethod) {
             task.produce(delayMethod);
             System.out.println(String.format("入图：[%d]-[%s]", currentIndex, task));
             return this;
         }
 
+        /**
+         * Produce post need.
+         *
+         * @param property the property
+         * @return the post need
+         */
         public PostNeed produce(DefProperty property) {
             task.produce(property);
             System.out.println(String.format("入图：[%d]-[%s]", currentIndex, task));
             return this;
         }
 
-        public PostNeed addChild(PostTask task) {
+        /**
+         * Add child post need.
+         *
+         * @param task the task
+         * @return the post need
+         */
+        public PostNeed addChild(AbstractPostTask task) {
             int child = add(task);
             connect(currentIndex, child);
             if (getNode(currentIndex).getFirstIn() != null) {

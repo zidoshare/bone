@@ -17,15 +17,20 @@ import java.lang.reflect.Modifier;
  * site.zido.core.utils
  *
  * @author zido
+ * @date 2018 /05/10
  */
 public class ReflectionUtils {
+    /**
+     * The constant logger.
+     */
     private static Logger logger = LogManager.getLogger(ReflectionUtils.class);
 
     /**
      * 获取类构造器
      *
+     * @param <T>     the type parameter
      * @param classzz 类
-     * @return 构造器
+     * @return 构造器 only constructor
      */
     public static <T> Constructor<T> getOnlyConstructor(Class<T> classzz) {
         Constructor<?>[] ctrs = classzz.getDeclaredConstructors();
@@ -38,9 +43,9 @@ public class ReflectionUtils {
     /**
      * 实例化类，通过默认无参方法(只能是公有构造方法)
      *
-     * @param clazz 类
      * @param <T>   类型
-     * @return 实例
+     * @param clazz 类
+     * @return 实例 t
      */
     public static <T> T newInstance(Class<T> clazz) {
         Assert.notNull(clazz, "实例化时提供的类不能为空");
@@ -59,9 +64,9 @@ public class ReflectionUtils {
     /**
      * 实例化类，通过默认无参方法(包括私有构造方法)
      *
-     * @param clazz 类
      * @param <T>   类型
-     * @return 实例
+     * @param clazz 类
+     * @return 实例 t
      */
     public static <T> T instantiateClass(Class<T> clazz) {
         Assert.notNull(clazz, "提供的类不能为空");
@@ -75,6 +80,14 @@ public class ReflectionUtils {
         }
     }
 
+    /**
+     * Instantiate class t.
+     *
+     * @param <T>    the type parameter
+     * @param ctor   the ctor
+     * @param params the params
+     * @return the t
+     */
     public static <T> T instantiateClass(Constructor<T> ctor, Object... params) {
         Assert.notNull(ctor, "构造器不能为空");
         try {
@@ -91,13 +104,28 @@ public class ReflectionUtils {
         }
     }
 
+    /**
+     * Make accessible.
+     *
+     * @param ctor the ctor
+     */
     public static void makeAccessible(Constructor<?> ctor) {
         if ((!Modifier.isPublic(ctor.getModifiers()) ||
-                !Modifier.isPublic(ctor.getDeclaringClass().getModifiers())) && !ctor.isAccessible()) {
-            ctor.setAccessible(true);
+                !Modifier.isPublic(ctor.getDeclaringClass().getModifiers()))) {
+            if (!ctor.isAccessible()) {
+                ctor.setAccessible(true);
+            }
         }
     }
 
+    /**
+     * Execute object.
+     *
+     * @param method the method
+     * @param target the target
+     * @param params the params
+     * @return the object
+     */
     public static Object execute(Method method, Object target, Object... params) {
         try {
             if (params == null || params.length == 0) {
@@ -111,10 +139,24 @@ public class ReflectionUtils {
         }
     }
 
+    /**
+     * Gets simple name.
+     *
+     * @param classzz the classzz
+     * @return the simple name
+     */
     public static String getSimpleName(Class<?> classzz) {
         return classzz.getSimpleName().substring(0, 1).toLowerCase() + classzz.getSimpleName().substring(1);
     }
 
+    /**
+     * Gets annotation.
+     *
+     * @param <T>                  the type parameter
+     * @param targetClass          the target class
+     * @param targetAnnotationType the target annotation type
+     * @return the annotation
+     */
     public static <T extends Annotation> T getAnnotation(Class<?> targetClass, Class<T> targetAnnotationType) {
         Target target = targetAnnotationType.getAnnotation(Target.class);
         ElementType[] elementTypes = target.value();
@@ -135,12 +177,20 @@ public class ReflectionUtils {
         Annotation[] annotations = targetClass.getAnnotations();
         for (Annotation other : annotations) {
             T result = getAnnotation(other.getClass(), targetAnnotationType);
-            if (result != null)
+            if (result != null) {
                 return result;
+            }
         }
         return null;
     }
 
+    /**
+     * Gets setter method.
+     *
+     * @param obj  the obj
+     * @param name the name
+     * @return the setter method
+     */
     public static Method getSetterMethod(Object obj, String name) {
         name = "set" + name.substring(0, 1).toUpperCase() + name.substring(1);
         Method[] methods = obj.getClass().getMethods();
@@ -152,6 +202,13 @@ public class ReflectionUtils {
         return null;
     }
 
+    /**
+     * Sets field.
+     *
+     * @param target the target
+     * @param method the method
+     * @param value  the value
+     */
     public static void setField(Object target, Method method, Object... value) {
         if (method == null) {
             throw new RuntimeException("没有相应的setter方法:" + target.getClass().getName() + "." + method.getName());
@@ -160,7 +217,7 @@ public class ReflectionUtils {
         if (types.length != value.length) {
             throw new IllegalArgumentException("参数不匹配：" + target.getClass().getName() + "." + method.getName() + " 不能匹配 " + value);
         }
-        Object args[] = new Object[types.length];
+        Object[] args = new Object[types.length];
         int i = 0;
         for (Class<?> type : types) {
 

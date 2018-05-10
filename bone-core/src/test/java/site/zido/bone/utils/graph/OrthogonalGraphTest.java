@@ -3,7 +3,7 @@ package site.zido.bone.utils.graph;
 import org.junit.Assert;
 import org.junit.Test;
 import site.zido.bone.core.beans.PostGraph;
-import site.zido.bone.core.beans.PostTask;
+import site.zido.bone.core.beans.AbstractPostTask;
 import site.zido.bone.core.exception.beans.CircleRelyException;
 import site.zido.bone.core.utils.graph.OrthogonalArcGraph;
 
@@ -61,7 +61,7 @@ public class OrthogonalGraphTest {
         }
     }
 
-    static class NullPostTask extends PostTask {
+    static class NullPostTask extends AbstractPostTask {
         private int index;
 
         public NullPostTask(int index) {

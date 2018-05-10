@@ -1,17 +1,24 @@
 package site.zido.bone.core.exception.beans;
 
-import site.zido.bone.core.beans.PostTask;
+import site.zido.bone.core.beans.AbstractPostTask;
 import site.zido.bone.core.beans.structure.DefProperty;
 
 import java.util.List;
 
 /**
- * site.zido.bone.core.exception.beans
+ * The type Lack rely exception.
  *
  * @author zido
+ * @date 2018 /05/10
  */
 public class LackRelyException extends FatalBeansException {
-    public LackRelyException(PostTask data, List<DefProperty> propertyList) {
+    /**
+     * Instantiates a new Lack rely exception.
+     *
+     * @param data         the data
+     * @param propertyList the property list
+     */
+    public LackRelyException(AbstractPostTask data, List<DefProperty> propertyList) {
         super(data.toString() + " 缺少依赖:" + propertyList);
     }
 }

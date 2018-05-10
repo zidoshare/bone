@@ -7,16 +7,27 @@ import java.util.Set;
  * 解析管理器
  *
  * @author zido
- * @since 2017/30/21 下午2:30
+ * @date 2018 /05/10
+ * @since 2017 /30/21 下午2:30
  */
 public class ParserManager {
-    //parser 不重复
+    /**
+     * The constant parsers.
+     */
     private static Set<IBeanParser> parsers = new HashSet<>();
 
-    public static void registerParser(AbsBeanParser parser) {
+    /**
+     * Register parser.
+     *
+     * @param parser the parser
+     */
+    public static void registerParser(AbstractBeanParser parser) {
         parsers.add(parser);
     }
 
+    /**
+     * Parser all.
+     */
     public static void parserAll() {
         for (IBeanParser parser : parsers) {
             parser.parser();

@@ -9,14 +9,30 @@ import site.zido.bone.core.utils.ValiDateUtils;
  * 单个任务
  *
  * @author zido
- * @since 2017/30/21 下午2:30
+ * @date 2018 /05/10
+ * @since 2017 /30/21 下午2:30
  */
-public abstract class PostTask {
+public abstract class AbstractPostTask {
 
+    /**
+     * The Properties.
+     */
     private DefProperty[] properties = new DefProperty[0];
+    /**
+     * The Definition.
+     */
     private Definition definition;
+    /**
+     * The Delay method.
+     */
     private DelayMethod delayMethod;
+    /**
+     * The Tail counter.
+     */
     private int tailCounter = 0;
+    /**
+     * The Property.
+     */
     private DefProperty property;
 
     /**
@@ -26,6 +42,11 @@ public abstract class PostTask {
      */
     public abstract void execute(Object[] params);
 
+    /**
+     * Run boolean.
+     *
+     * @return the boolean
+     */
     public boolean run() {
         DefProperty[] properties = getProperties();
         if (properties == null || properties.length == 0) {
@@ -50,27 +71,57 @@ public abstract class PostTask {
         return true;
     }
 
+    /**
+     * Get properties def property [ ].
+     *
+     * @return the def property [ ]
+     */
     public DefProperty[] getProperties() {
         return properties;
     }
 
+    /**
+     * Need.
+     *
+     * @param properties the properties
+     */
     public void need(DefProperty[] properties) {
         this.properties = properties;
         this.tailCounter = properties.length;
     }
 
+    /**
+     * Produce.
+     *
+     * @param definition the definition
+     */
     public void produce(Definition definition) {
         this.definition = definition;
     }
 
+    /**
+     * Gets definition.
+     *
+     * @return the definition
+     */
     public Definition getDefinition() {
         return definition;
     }
 
+    /**
+     * Gets tail counter.
+     *
+     * @return the tail counter
+     */
     public int getTailCounter() {
         return tailCounter;
     }
 
+    /**
+     * Reduce int.
+     *
+     * @return the int
+     */
     public int reduce() {
         return --tailCounter;
     }
@@ -83,10 +134,20 @@ public abstract class PostTask {
                         :String.format("执行延迟注入属性%s", property);
     }
 
+    /**
+     * Produce.
+     *
+     * @param delayMethod the delay method
+     */
     public void produce(DelayMethod delayMethod) {
         this.delayMethod = delayMethod;
     }
 
+    /**
+     * Produce.
+     *
+     * @param property the property
+     */
     public void produce(DefProperty property) {
         this.property = property;
     }

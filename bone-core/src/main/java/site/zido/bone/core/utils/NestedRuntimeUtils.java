@@ -4,6 +4,7 @@ package site.zido.bone.core.utils;
  * 包装异常处理类，框架内部通用异常处理工具类
  *
  * @author zido
+ * @date 2018 /05/10
  */
 public class NestedRuntimeUtils {
     /**
@@ -11,14 +12,16 @@ public class NestedRuntimeUtils {
      *
      * @param msg   异常信息
      * @param cause 异常原因
-     * @return 全异常信息
+     * @return 全异常信息 string
      */
     public static String buildMessage(String msg, Throwable cause) {
-        if (cause == null)
+        if (cause == null) {
             return msg;
+        }
         String result = "";
-        if (msg != null)
+        if (msg != null) {
             result += "发生异常：" + msg + "; 原因：";
+        }
         result += cause;
         return result;
     }
@@ -27,11 +30,12 @@ public class NestedRuntimeUtils {
      * 获取根异常 （溯源时不包含本身）
      *
      * @param original 源异常
-     * @return 最顶层的异常/null
+     * @return 最顶层的异常 /null
      */
     public static Throwable getRootCause(Throwable original) {
-        if (original == null)
+        if (original == null) {
             return null;
+        }
         Throwable rootCause = null;
         Throwable cause = original.getCause();
         while (cause != null && cause != rootCause) {
@@ -45,7 +49,7 @@ public class NestedRuntimeUtils {
      * 获取根异常（溯源时包含本身）
      *
      * @param original 源异常
-     * @return
+     * @return original cause
      */
     public static Throwable getOriginalCause(Throwable original) {
         Throwable rootCause = getRootCause(original);

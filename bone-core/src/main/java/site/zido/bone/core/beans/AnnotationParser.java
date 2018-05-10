@@ -31,17 +31,35 @@ import java.util.jar.JarFile;
  * 注解解析器
  *
  * @author zido
- * @since 2017/25/21 下午2:25
+ * @date 2018 /05/10
+ * @since 2017 /25/21 下午2:25
  */
-public class AnnotationParser extends AbsBeanParser {
+public class AnnotationParser extends AbstractBeanParser {
+    /**
+     * The constant SEPARATOR.
+     */
     private static String SEPARATOR = File.separator;
 
+    /**
+     * The constant logger.
+     */
     private static Logger logger = LogManager.getLogger(AnnotationParser.class);
 
+    /**
+     * The Package name.
+     */
     private String packageName;
 
+    /**
+     * The Classes.
+     */
     private Set<Class<?>> classes = new LinkedHashSet<>(128);
 
+    /**
+     * Instantiates a new Annotation parser.
+     *
+     * @param packageName the package name
+     */
     public AnnotationParser(String packageName) {
         this.packageName = packageName;
     }
@@ -69,6 +87,13 @@ public class AnnotationParser extends AbsBeanParser {
         return list;
     }
 
+    /**
+     * Parse component definition.
+     *
+     * @param classzz the classzz
+     * @param id      the id
+     * @return the definition
+     */
     private Definition parseComponent(Class<?> classzz, String id) {
         Definition definition = new Definition();
         definition.setId(id);
@@ -104,8 +129,9 @@ public class AnnotationParser extends AbsBeanParser {
         //解析所有需要被注入的方法
         Method[] methods = classzz.getDeclaredMethods();
         for (Method method : methods) {
-            if (method.getAnnotation(Inject.class) == null)
+            if (method.getAnnotation(Inject.class) == null) {
                 continue;
+            }
             DelayMethod delayMethod = parseMethod(method);
             definition.addDelayMethod(delayMethod);
         }
@@ -130,6 +156,12 @@ public class AnnotationParser extends AbsBeanParser {
         return definition;
     }
 
+    /**
+     * Parse method delay method.
+     *
+     * @param method the method
+     * @return the delay method
+     */
     private DelayMethod parseMethod(Method method) {
         DelayMethod delayMethod = new DelayMethod();
         delayMethod.setMethod(method);
@@ -161,6 +193,12 @@ public class AnnotationParser extends AbsBeanParser {
         return delayMethod;
     }
 
+    /**
+     * Parse class.
+     *
+     * @param classzz the classzz
+     * @param list    the list
+     */
     private void parseClass(Class<?> classzz, List<Definition> list) {
         Object obj = ReflectionUtils.newInstance(classzz);
         if (obj == null) {
@@ -190,12 +228,13 @@ public class AnnotationParser extends AbsBeanParser {
     /**
      * 查找类
      *
-     * @return 类集合
+     * @return 类集合 set
      */
     public Set<Class<?>> loadClasses() {
         //每个实例仅能查找一次
-        if (!classes.isEmpty())
+        if (!classes.isEmpty()) {
             return classes;
+        }
         //将包名转换为路径名
         String packageDirName = packageName.replace(".", SEPARATOR);
         Enumeration<URL> resources;
@@ -287,10 +326,20 @@ public class AnnotationParser extends AbsBeanParser {
         }
     }
 
+    /**
+     * Gets classes.
+     *
+     * @return the classes
+     */
     public Set<Class<?>> getClasses() {
         return classes;
     }
 
+    /**
+     * Sets classes.
+     *
+     * @param classes the classes
+     */
     public void setClasses(Set<Class<?>> classes) {
         this.classes = classes;
     }

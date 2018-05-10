@@ -11,15 +11,30 @@ import java.util.concurrent.ConcurrentHashMap;
  * Ioc容器
  *
  * @author zido
- * @since 2017/29/21 下午2:29
+ * @date 2018 /05/10
+ * @since 2017 /29/21 下午2:29
  */
 public class BoneContext implements BeanFactory, BeanProvider {
+    /**
+     * The constant boneContext.
+     */
     private static BoneContext boneContext = new BoneContext();
+    /**
+     * The Container.
+     */
     private Map<Class<?>, Map<String, Object>> container = new ConcurrentHashMap<>();
 
+    /**
+     * Instantiates a new Bone context.
+     */
     private BoneContext() {
     }
 
+    /**
+     * Gets instance.
+     *
+     * @return the instance
+     */
     public static BoneContext getInstance() {
         return boneContext;
     }
@@ -72,7 +87,7 @@ public class BoneContext implements BeanFactory, BeanProvider {
         }
         Map<String, Object> values;
         if (container.get(requireType) == null) {
-            values = new ConcurrentHashMap<>();
+            values = new ConcurrentHashMap<>(16);
         } else {
             values = container.get(requireType);
         }

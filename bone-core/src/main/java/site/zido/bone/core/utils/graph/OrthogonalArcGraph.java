@@ -5,9 +5,11 @@ import java.util.*;
 /**
  * 有向图的十字链表实现(正向逆向都具备)
  *
+ * @param <T> the type parameter
  * @author zido
+ * @date 2018 /05/10
  */
-public class OrthogonalArcGraph<T> extends ArcGraph<T> {
+public class OrthogonalArcGraph<T> extends AbstractArcGraph<T> {
 
     /**
      * 添加顶点
@@ -98,17 +100,46 @@ public class OrthogonalArcGraph<T> extends ArcGraph<T> {
         return null;
     }
 
-    class OAGtr implements Iterator<T> {
+    /**
+     * The type Oa gtr.
+     *
+     * @author zido
+     * @date 2018 /05/10
+     */
+    class Otr implements Iterator<T> {
+        /**
+         * The Root.
+         */
         private OrthogonalNode<T> root;
+        /**
+         * The Front.
+         */
         private boolean front;
+        /**
+         * The Queue.
+         */
         private Queue<OrthogonalNode<T>> queue = new LinkedList<>();
+        /**
+         * The Visits.
+         */
         private Set<OrthogonalNode<T>> visits = new LinkedHashSet<>();
 
-        public OAGtr(OrthogonalNode<T> root) {
+        /**
+         * Instantiates a new Oa gtr.
+         *
+         * @param root the root
+         */
+        public Otr(OrthogonalNode<T> root) {
             this(root, true);
         }
 
-        public OAGtr(OrthogonalNode<T> root, boolean front) {
+        /**
+         * Instantiates a new Oa gtr.
+         *
+         * @param root  the root
+         * @param front the front
+         */
+        public Otr(OrthogonalNode<T> root, boolean front) {
             this.root = root;
             this.front = front;
             queue.offer(root);
@@ -167,6 +198,6 @@ public class OrthogonalArcGraph<T> extends ArcGraph<T> {
 
     @Override
     public Iterator<T> iterator(int rootIndex, boolean front) {
-        return new OAGtr(getNode(rootIndex), front);
+        return new Otr(getNode(rootIndex), front);
     }
 }

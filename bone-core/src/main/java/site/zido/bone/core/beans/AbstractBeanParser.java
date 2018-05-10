@@ -13,12 +13,21 @@ import java.util.List;
  * 抽象解析类，扩展解析方式，继承此类，返回config即可。
  *
  * @author zido
- * @since 2017/23/21 下午2:23
+ * @date 2018 /05/10
+ * @since 2017 /23/21 下午2:23
  */
-public abstract class AbsBeanParser implements IBeanParser {
+public abstract class AbstractBeanParser implements IBeanParser {
 
+    /**
+     * The Post graph.
+     */
     private PostGraph postGraph = new PostGraph();
 
+    /**
+     * Gets config.
+     *
+     * @return the config
+     */
     protected abstract List<Definition> getConfig();
 
     @Override
@@ -33,6 +42,11 @@ public abstract class AbsBeanParser implements IBeanParser {
     }
 
 
+    /**
+     * Gets current class loader.
+     *
+     * @return the current class loader
+     */
     ClassLoader getCurrentClassLoader() {
         return Thread.currentThread().getContextClassLoader();
     }
@@ -50,7 +64,7 @@ public abstract class AbsBeanParser implements IBeanParser {
             DefConstruction cons = definition.getConstruction();
             PostGraph.PostNeed next;
             if (cons == null) {
-                next = postGraph.addTask(new PostTask() {
+                next = postGraph.addTask(new AbstractPostTask() {
                     @Override
                     public void execute(Object[] params) {
                         Object object = ReflectionUtils.newInstance(type);
@@ -65,7 +79,7 @@ public abstract class AbsBeanParser implements IBeanParser {
                     }
                 }).need(properties).produce(definition);
             } else {
-                next = postGraph.addTask(new PostTask() {
+                next = postGraph.addTask(new AbstractPostTask() {
                     @Override
                     public void execute(Object[] params) {
                         Object object = ReflectionUtils.instantiateClass(cons.getConstructor(), params);
@@ -83,7 +97,7 @@ public abstract class AbsBeanParser implements IBeanParser {
             if (properties != null) {
                 for (DefProperty p : properties) {
                     if (p.getValue() == null) {
-                        next.addChild(new PostTask() {
+                        next.addChild(new AbstractPostTask() {
                             @Override
                             public void execute(Object[] params) {
                                 Object object = p.getTarget();
@@ -92,7 +106,7 @@ public abstract class AbsBeanParser implements IBeanParser {
                             }
                         }).need(new DefProperty[]{p}).produce(p);
                     } else {
-                        next.addChild(new PostTask() {
+                        next.addChild(new AbstractPostTask() {
                             @Override
                             public void execute(Object[] params) {
                                 Object object = p.getTarget();
@@ -105,7 +119,7 @@ public abstract class AbsBeanParser implements IBeanParser {
             }
             if (delayMethods.size() > 0) {
                 for (final DelayMethod delayMethod : delayMethods) {
-                    next.addChild(new PostTask() {
+                    next.addChild(new AbstractPostTask() {
                         @Override
                         public void execute(Object[] params) {
                             Object object = delayMethod.execute(params);
@@ -116,7 +130,7 @@ public abstract class AbsBeanParser implements IBeanParser {
             }
         }else {
             for (final DelayMethod delayMethod : delayMethods) {
-                postGraph.addTask(new PostTask() {
+                postGraph.addTask(new AbstractPostTask() {
                     @Override
                     public void execute(Object[] params) {
                         Object object = delayMethod.execute(params);

@@ -7,22 +7,40 @@ import java.util.List;
  * 本异常没有特殊意义，仅用来封装多个异常
  *
  * @author zido
- * @since 2017/31/21 下午2:31
+ * @date 2018 /05/10
+ * @since 2017 /31/21 下午2:31
  */
 public class BoneManyException extends Exception {
-    //容纳所有异常
+    /**
+     * The Causes.
+     */
     private List<Throwable> causes = new ArrayList<>();
 
-    //构造函数，传递一个异常列表
-    public BoneManyException(List<? extends Throwable> _causes) {
-        causes.addAll(_causes);
+    /**
+     * Instantiates a new Bone many exception.
+     *
+     * @param causes the causes
+     */
+    public BoneManyException(List<? extends Throwable> causes) {
+        this.causes.addAll(causes);
     }
 
+    /**
+     * Add exception boolean.
+     *
+     * @param <T>   the type parameter
+     * @param cause the cause
+     * @return the boolean
+     */
     public <T extends Throwable> boolean addException(T cause) {
         return causes.add(cause);
     }
 
-    //读取所有的异常
+    /**
+     * Gets exceptions.
+     *
+     * @return the exceptions
+     */
     public List<Throwable> getExceptions() {
         return causes;
     }

@@ -11,20 +11,27 @@ import site.zido.bone.core.utils.Assert;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * xml文件解析器
  *
  * @author zido
- * @since 2017/5/28 0028
+ * @date 2018 /05/10
+ * @since 2017 /5/28 0028
  */
-public class XmlParser extends AbsBeanParser {
+public class XmlParser extends AbstractBeanParser {
 
+    /**
+     * The Path.
+     */
     private String path;
 
+    /**
+     * Instantiates a new Xml parser.
+     *
+     * @param path the path
+     */
     public XmlParser(String path) {
         this.path = path;
     }
@@ -34,6 +41,12 @@ public class XmlParser extends AbsBeanParser {
         return getConfig(path);
     }
 
+    /**
+     * Gets config.
+     *
+     * @param path the path
+     * @return the config
+     */
     private List<Definition> getConfig(String path) {
         Assert.hasLength(path, "xml扫描路径不能为空");
         List<Definition> configMap = new ArrayList<>(5);
